@@ -14,9 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User as UserIcon, Settings } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, ShieldCheck } from 'lucide-react';
 import { Logo } from '@/components/icons/logo';
 import Link from 'next/link';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardLayout({
   children,
@@ -51,6 +52,13 @@ export default function DashboardLayout({
     if (!email) return '..';
     const name = email.split('@')[0];
     return name.substring(0, 2).toUpperCase();
+  };
+
+  const handleResendVerification = async () => {
+    if (user && !user.emailVerified) {
+      await user.sendEmailVerification();
+      // Optionally, show a toast notification
+    }
   };
 
 
@@ -103,6 +111,18 @@ export default function DashboardLayout({
       </header>
       <main className="flex-1">
         <div className="container py-8">
+            {!user.emailVerified && (
+              <Alert variant="destructive" className="mb-6">
+                <ShieldCheck className="h-4 w-4" />
+                <AlertTitle>Verify your email address</AlertTitle>
+                <AlertDescription>
+                  Please check your inbox to verify your email. You won't be able to use all features until you've verified your account. 
+                  <Button variant="link" className="p-0 h-auto ml-2" onClick={() => router.push(`/verify-email?email=${user.email}`)}>
+                    Resend verification
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
             {children}
         </div>
       </main>

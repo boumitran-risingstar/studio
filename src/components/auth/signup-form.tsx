@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { SignupSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -41,12 +41,13 @@ export function SignupForm() {
   async function onSubmit(data: SignupFormValues) {
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      await sendEmailVerification(userCredential.user);
       toast({
         title: 'Account created',
-        description: 'You have been successfully signed up!',
+        description: "We've sent you an email verification link.",
       });
-      router.push('/dashboard');
+      router.push(`/verify-email?email=${data.email}`);
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred.";
       if (error.code === 'auth/email-already-in-use') {
