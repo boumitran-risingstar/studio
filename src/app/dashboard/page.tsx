@@ -1,14 +1,43 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FileText, BarChart2 } from "lucide-react";
+import { PlusCircle, FileText, BarChart2, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useUser } from "@/firebase";
+import { getUserFromExternalApi } from "@/app/actions";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
+type ProfileData = {
+    name: string;
+    email: string;
+};
 
 export default function DashboardPage() {
     const { user } = useUser();
+    const [profileData, setProfileData] = useState<ProfileData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (user?.uid) {
+            const fetchProfile = async () => {
+                setLoading(true);
+                setError(null);
+                const result = await getUserFromExternalApi(user.uid);
+                if (result.success) {
+                    setProfileData(result.data);
+                } else {
+                    setError(result.error);
+                }
+                setLoading(false);
+            };
+            fetchProfile();
+        }
+    }, [user?.uid]);
 
     const featureCards = [
         {
@@ -28,18 +57,38 @@ export default function DashboardPage() {
         {
             title: "Analyze Trends",
             description: "Get insights into your dental health patterns.",
-            icon: <BarChart2 className="h-6 w-6 text-primary" />,
+            icon: <BarChart2 className="h-6 w_6 text-primary" />,
             action: "See Insights",
             image: PlaceHolderImages.find(p => p.id === '3'),
         },
     ];
 
+    const WelcomeMessage = () => {
+        if (loading) {
+            return <Skeleton className="h-8 w-48" />;
+        }
+        if (error) {
+            return "Welcome!";
+        }
+        return `Welcome, ${profileData?.name || user?.email?.split('@')[0] || 'User'}!`;
+    };
+
     return (
         <div className="space-y-8">
             <div className="text-center">
-                <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome, {user?.email?.split('@')[0] || 'User'}!</h1>
+                <h1 className="text-3xl font-bold tracking-tight font-headline">
+                    <WelcomeMessage />
+                </h1>
                 <p className="text-muted-foreground mt-2">Here's a snapshot of your dental health journey.</p>
             </div>
+            
+            {error && (
+                 <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {featureCards.map((card, index) => (

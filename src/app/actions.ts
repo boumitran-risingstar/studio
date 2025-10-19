@@ -30,3 +30,24 @@ export async function createUserInExternalApi(userData: UserData) {
     return { success: false, error: 'A network error occurred. Please try again.' };
   }
 }
+
+export async function getUserFromExternalApi(uid: string) {
+  try {
+    const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/read/${uid}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const apiError = await response.json();
+      return { success: false, error: apiError.message || 'An error occurred while fetching your profile.' };
+    }
+
+    const userData = await response.json();
+    return { success: true, data: userData };
+  } catch (apiError) {
+    return { success: false, error: 'A network error occurred. Please try again.' };
+  }
+}
