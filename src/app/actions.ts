@@ -33,7 +33,7 @@ export async function createUserInExternalApi(userData: UserData) {
 
 export async function getUserFromExternalApi(uid: string) {
   try {
-    const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/read/${uid}`, {
+    const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/read?uid=${uid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
