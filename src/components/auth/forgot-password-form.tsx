@@ -38,7 +38,9 @@ export function ForgotPasswordForm() {
   async function onSubmit(data: ForgotPasswordFormValues) {
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, data.email);
+      await sendPasswordResetEmail(auth, data.email, {
+        url: `${window.location.origin}/action`
+      });
       setSent(true);
     } catch (error: any) {
       toast({

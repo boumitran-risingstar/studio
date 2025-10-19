@@ -42,7 +42,9 @@ export function SignupForm() {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      await sendEmailVerification(userCredential.user);
+      await sendEmailVerification(userCredential.user, {
+        url: `${window.location.origin}/action`
+      });
       toast({
         title: 'Account created',
         description: "We've sent you an email verification link.",
