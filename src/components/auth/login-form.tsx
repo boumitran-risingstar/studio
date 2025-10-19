@@ -44,7 +44,9 @@ export function LoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       
       if (userCredential.user) {
-        const result = await createUserInExternalApi(userCredential.user.uid);
+        const { uid, email, displayName } = userCredential.user;
+        const result = await createUserInExternalApi({ uid, email, name: displayName });
+        
         if (!result.success) {
           toast({
             title: 'Could not sync user data',
