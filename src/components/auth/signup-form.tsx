@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { SignupSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ export function SignupForm() {
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(SignupSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -45,8 +46,12 @@ export function SignupForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       
       if (userCredential.user) {
-        const { uid, email, displayName } = userCredential.user;
-        const result = await createUserInExternalApi({ uid, email, name: displayName });
+        await updateProfile(userCredential.user, {
+            displayName: data.name
+        });
+
+        const { uid, email } = userCredential.user;
+        const result = await createUserInExternalApi({ uid, email, name: data.name });
         
         if (!result.success) {
           // Even if the external API fails, we proceed with Firebase logic but notify the user.
@@ -87,6 +92,20 @@ export function SignupForm() {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Doe" {...field} autoComplete="name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="email"
