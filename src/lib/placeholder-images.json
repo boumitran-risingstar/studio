@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "A person writing in a journal.",
+      "imageUrl": "https://images.unsplash.com/photo-1550592704-6c76defa9985?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxqb3VybmFsJTIwd3JpdGluZ3xlbnwwfHx8fDE3NjA4Njc3OTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "journal writing"
+    },
+    {
+      "id": "2",
+      "description": "A calendar and a clock, representing history.",
+      "imageUrl": "https://images.unsplash.com/photo-1541232876724-6e25c6dfa788?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYWxlbmRhciUyMGNsb2NrfGVufDB8fHx8MTc2MDg4ODAyMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calendar clock"
+    },
+    {
+      "id": "3",
+      "description": "A person looking at charts and graphs on a screen.",
+      "imageUrl": "https://images.unsplash.com/photo-1712640183722-ec59693f7c82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjaGFydHMlMjBhbmFseXRpY3N8ZW58MHx8fHwxNzYwODM2NzAxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "charts analytics"
+    }
+  ]
 }
