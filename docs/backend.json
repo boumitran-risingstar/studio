@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Mouth Metrics application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Dashboard": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Dashboard",
+      "type": "object",
+      "description": "Represents the user dashboard, displaying content relevant to the user's data and metrics.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the dashboard entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 Dashboard)"
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user information. The document ID is the user's Firebase Auth UID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user derived from Firebase Authentication."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/dashboards/{dashboardId}",
+        "definition": {
+          "entityName": "Dashboard",
+          "schema": {
+            "$ref": "#/backend/entities/Dashboard"
+          },
+          "description": "Stores dashboard data, including a denormalized 'userId' field for authorization independence.",
+          "params": [
+            {
+              "name": "dashboardId",
+              "description": "The unique identifier for the dashboard."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This Firestore data structure is designed to support the Mouth Metrics application, focusing on user dashboards. It adheres to the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. \n\n**Authorization Independence:** The structure avoids hierarchical authorization dependencies by storing the `userId` directly within the `dashboards` collection, ensuring that access control can be determined without needing to `get()` parent documents.\n\n**Structural Segregation:** The structure separates user data and dashboard data into distinct collections (`/users` and `/dashboards`).\n\n**Access Modeling:**\n*   The `/users/{userId}` collection follows the Path-Based ownership model for private user data. While the application proposal doesn't specify storing any data directly within the `/users/{userId}` documents beyond the `id`, this structure allows for future expansion if needed.  The `userId` is derived directly from `request.auth.uid`.\n*   The `/dashboards/{dashboardId}` collection enforces that each dashboard document contains a `userId` field referencing the owning user. This supports QAPs by enabling secure list operations, as rules can filter based on the `userId` to ensure a user can only access their own dashboards. The path is secured to only allow the user who owns the dashboard to create/read/update/delete the dashboard.\n\n**Data Clarity and Predictability:** The data structure employs explicit and consistent naming conventions (e.g., `userId` for user identifiers) to enhance clarity and maintainability."
+  }
+}

@@ -1,0 +1,76 @@
+/**
+ * @file Firestore Security Rules for Mouth Metrics application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user data and dashboards.
+ * Users can only access their own data, ensuring privacy and security.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profiles. Access is restricted to the user themselves.
+ * - /dashboards/{dashboardId}: Stores dashboard data, including a denormalized userId field for authorization.
+ *
+ * Key Security Decisions:
+ * - Users can only create their own user document.
+ * - Users can only create, read, update, or delete dashboards they own.
+ *
+ * Denormalization for Authorization:
+ * - The `dashboards` collection contains a `userId` field on each document.
+ * This allows rules to quickly verify ownership without additional reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Controls access to user profiles. Only the authenticated user can read or write their own profile.
+     * @path /users/{userId}
+     * @allow (create) - User with UID 'user_abc' can create their own profile document at /users/user_abc.
+     * @allow (get, update, delete) - User with UID 'user_abc' can read, update, or delete their own profile document at /users/user_abc.
+     * @deny (create) - User with UID 'user_xyz' cannot create a profile document at /users/user_abc.
+     * @deny (get, update, delete) - User with UID 'user_xyz' cannot read, update, or delete the profile document at /users/user_abc.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
+    }
+
+    /**
+     * @description Controls access to dashboard documents.  Only the user associated with the dashboard can create, read, update, or delete it.
+     * @path /dashboards/{dashboardId}
+     * @allow (create) - User with UID 'user_abc' can create a dashboard document at /dashboards/dash1 if dashboard.userId == 'user_abc'.
+     * @allow (get, update, delete) - User with UID 'user_abc' can read, update, or delete the dashboard document at /dashboards/dash1 if dashboard.userId == 'user_abc'.
+     * @deny (create) - User with UID 'user_xyz' cannot create a dashboard document at /dashboards/dash1, even if they try to set dashboard.userId to 'user_abc'.  The request UID must match the userId in the data.
+     * @deny (get, update, delete) - User with UID 'user_xyz' cannot read, update, or delete the dashboard document at /dashboards/dash1 if dashboard.userId is 'user_abc'.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /dashboards/{dashboardId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      //Check if the authenticated user id matches the userId on the dashboard
+      function isDashboardOwner() {
+          return request.auth.uid == resource.data.userId;
+      }
+      //Check if the request's auth UID is the same as the dashboards userId
+      function requestIsDashboardOwner() {
+        return request.auth.uid == request.resource.data.userId;
+      }
+
+      allow get: if isSignedIn() && isDashboardOwner();
+      allow list: if false;
+      allow create: if isSignedIn() && requestIsDashboardOwner();
+      allow update: if isSignedIn() && requestIsDashboardOwner() && isDashboardOwner();
+      allow delete: if isSignedIn() && isDashboardOwner();
+    }
+  }
+}
