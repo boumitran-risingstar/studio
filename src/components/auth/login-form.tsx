@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createUserInExternalApi } from '@/app/actions';
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
@@ -43,29 +44,11 @@ export function LoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       
       if (userCredential.user) {
-        try {
-          const response = await fetch('https://users-164502969077.asia-southeast1.run.app/create', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ identifier: userCredential.user.uid }),
-          });
-
-          if (!response.ok) {
-            // The API returned an error, so we'll show a toast.
-            const apiError = await response.json();
-            toast({
-              title: 'Could not sync user data',
-              description: apiError.message || 'An error occurred while syncing your account.',
-              variant: 'destructive',
-            });
-          }
-        } catch (apiError) {
-          // The API call itself failed (e.g., network error).
+        const result = await createUserInExternalApi(userCredential.user.uid);
+        if (!result.success) {
           toast({
             title: 'Could not sync user data',
-            description: 'A network error occurred. Please try again.',
+            description: result.error,
             variant: 'destructive',
           });
         }
