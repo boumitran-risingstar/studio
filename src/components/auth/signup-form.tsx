@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createUserInExternalApi } from '@/app/actions';
 
 type SignupFormValues = z.infer<typeof SignupSchema>;
 
@@ -42,6 +43,21 @@ export function SignupForm() {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      
+      if (userCredential.user) {
+        const { uid, email, displayName } = userCredential.user;
+        const result = await createUserInExternalApi({ uid, email, name: displayName });
+        
+        if (!result.success) {
+          // Even if the external API fails, we proceed with Firebase logic but notify the user.
+          toast({
+            title: 'Could not sync account',
+            description: result.error,
+            variant: 'destructive',
+          });
+        }
+      }
+
       await sendEmailVerification(userCredential.user, {
         url: `${window.location.origin}/action`
       });

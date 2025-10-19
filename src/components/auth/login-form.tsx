@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserInExternalApi } from '@/app/actions';
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
@@ -41,21 +40,7 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      
-      if (userCredential.user) {
-        const { uid, email, displayName } = userCredential.user;
-        const result = await createUserInExternalApi({ uid, email, name: displayName });
-        
-        if (!result.success) {
-          toast({
-            title: 'Could not sync user data',
-            description: result.error,
-            variant: 'destructive',
-          });
-        }
-      }
-
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       router.push('/dashboard');
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred.";
