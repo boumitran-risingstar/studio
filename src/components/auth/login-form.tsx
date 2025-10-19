@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { LoginSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,19 @@ export function LoginForm() {
   async function onSubmit(data: LoginFormValues) {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      
+      if (userCredential.user && !userCredential.user.emailVerified) {
+        await signOut(auth);
+        toast({
+            title: 'Email Not Verified',
+            description: 'Please verify your email address before signing in.',
+            variant: 'destructive'
+        });
+        router.push(`/verify-email?email=${data.email}`);
+        return;
+      }
+      
       router.push('/dashboard');
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred.";
