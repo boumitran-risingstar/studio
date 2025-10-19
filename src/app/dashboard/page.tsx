@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, FileText, BarChart2 } from "lucide-react";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { useAuth } from "@/hooks/use-auth";
+import { useUser } from "@/firebase";
 
 export default function DashboardPage() {
-    const { user } = useAuth();
+    const { user } = useUser();
 
     const featureCards = [
         {
