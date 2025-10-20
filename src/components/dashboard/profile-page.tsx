@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, Link as LinkIcon, AlertTriangle } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -71,7 +71,6 @@ export function ProfilePage() {
                             <div className="space-y-4 pt-4">
                                 <Skeleton className="h-8 w-full" />
                                 <Skeleton className="h-8 w-full" />
-                                <Skeleton className="h-8 w-full" />
                             </div>
                         </div>
                     )}
@@ -91,7 +90,15 @@ export function ProfilePage() {
                                     <AvatarFallback className="text-3xl">{getInitials(profileData.name)}</AvatarFallback>
                                 </Avatar>
                                 <div className="space-y-1">
-                                    <h2 className="text-2xl font-bold">{profileData.name}</h2>
+                                    <h2 className="text-2xl font-bold">
+                                    {profileData.urlSlug ? (
+                                        <Link href={`/user/${profileData.urlSlug}`} className="hover:underline" target="_blank">
+                                            {profileData.name}
+                                        </Link>
+                                    ) : (
+                                        profileData.name
+                                    )}
+                                    </h2>
                                     <div className="flex items-center gap-2">
                                         <p className="text-muted-foreground">{profileData.email}</p>
                                         <Badge variant={user?.emailVerified ? "default" : "destructive"} className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 text-xs">
@@ -116,19 +123,6 @@ export function ProfilePage() {
                                     </div>
                                     <span>{profileData.email}</span>
                                 </div>
-                                {profileData.urlSlug && (
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <LinkIcon className="h-5 w-5 text-muted-foreground" />
-                                            <span className="font-medium">Public Profile</span>
-                                        </div>
-                                        <Button variant="link" asChild>
-                                            <Link href={`/user/${profileData.urlSlug}`} target="_blank">
-                                                View Profile
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
                          </>
                     )}
