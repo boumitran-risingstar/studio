@@ -3,8 +3,7 @@
   "entities": {},
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   }
 }
