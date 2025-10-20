@@ -18,8 +18,8 @@ type SlugData = {
     bio: string;
     photoURL?: string;
     slugURL: string;
-    qualification?: string[];
-    profession?: string[];
+    qualification?: string[] | string;
+    profession?: string[] | string;
 };
 
 interface UserProfileClientPageProps {
@@ -34,7 +34,6 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
     const [error, setError] = useState<string | null>(initialError);
 
     useEffect(() => {
-        // This effect will only run on the client if initialData is not present
         if (!initialData && !initialError) {
             const fetchSlugData = async () => {
                 setLoading(true);
@@ -64,6 +63,20 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         return options.find(opt => opt.value === value)?.label || value;
     }
     
+    // Safely get professions as an array
+    const professions = React.useMemo(() => {
+        if (Array.isArray(data?.profession)) return data.profession;
+        if (typeof data?.profession === 'string' && data.profession) return data.profession.split(',').map(p => p.trim());
+        return [];
+    }, [data?.profession]);
+
+    // Safely get qualifications as an array
+    const qualifications = React.useMemo(() => {
+        if (Array.isArray(data?.qualification)) return data.qualification;
+        if (typeof data?.qualification === 'string' && data.qualification) return data.qualification.split(',').map(q => q.trim());
+        return [];
+    }, [data?.qualification]);
+
     const personSchema = data ? {
         "@context": "https://schema.org",
         "@type": "Person",
@@ -71,8 +84,8 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         "url": (process.env.NEXT_PUBLIC_BASE_URL || '') + `/user/${data.slugURL}`,
         "image": data.photoURL,
         "description": data.bio,
-        "jobTitle": data.profession?.map(p => getLabelForValue(p, PROFESSIONS)).join(', '),
-        "honorificSuffix": data.qualification?.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ')
+        "jobTitle": professions.map(p => getLabelForValue(p, PROFESSIONS)).join(', '),
+        "honorificSuffix": qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ')
     } : null;
 
     return (
@@ -137,14 +150,14 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                 </Alert>
                             ) : data ? (
                                 <>
-                                    {(data.profession && data.profession.length > 0) && (
+                                    {(professions.length > 0) && (
                                         <div>
                                             <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-2">
                                                 <Briefcase className="h-4 w-4" />
                                                 Profession
                                             </h3>
                                             <div className="flex flex-wrap gap-2">
-                                                {data.profession.map(prof => (
+                                                {professions.map(prof => (
                                                     <Badge key={prof} variant="secondary" className="text-sm">
                                                         {getLabelForValue(prof, PROFESSIONS)}
                                                     </Badge>
@@ -153,14 +166,14 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                         </div>
                                     )}
 
-                                    {(data.qualification && data.qualification.length > 0) && (
+                                    {(qualifications.length > 0) && (
                                         <div>
                                              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2 mb-2">
                                                 <GraduationCap className="h-4 w-4" />
                                                 Qualifications
                                             </h3>
                                             <div className="flex flex-wrap gap-2">
-                                                {data.qualification.map(qual => (
+                                                {qualifications.map(qual => (
                                                     <Badge key={qual} variant="outline" className="text-sm">
                                                         {getLabelForValue(qual, QUALIFICATIONS)}
                                                     </Badge>
@@ -169,7 +182,7 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                         </div>
                                     )}
 
-                                    {(!data.profession || data.profession.length === 0) && (!data.qualification || data.qualification.length === 0) && (
+                                    {professions.length === 0 && qualifications.length === 0 && (
                                         <div className="text-center text-muted-foreground py-4">
                                             <p>No additional details available.</p>
                                         </div>
