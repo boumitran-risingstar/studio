@@ -1,102 +1,62 @@
 
-"use client";
-
-import { useEffect, useState, use } from "react";
+import type { Metadata } from 'next';
 import { getSlugDataFromExternalApi } from "@/app/actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AlertTriangle, User } from "lucide-react";
+import { UserProfileClientPage } from '@/components/user/user-profile-client-page';
 
 type SlugData = {
     name: string;
     bio: string;
     photoURL?: string;
+    slugURL: string;
 };
 
-export default function UserSlugPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = use(params);
-    const [data, setData] = useState<SlugData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+type Props = {
+  params: { slug: string };
+};
 
-    useEffect(() => {
-        if (slug) {
-            const fetchSlugData = async () => {
-                setLoading(true);
-                setError(null);
-                const result = await getSlugDataFromExternalApi(slug);
-                if (result.success) {
-                    setData(result.data);
-                } else {
-                    setError(result.error);
-                }
-                setLoading(false);
-            };
-            fetchSlugData();
-        }
-    }, [slug]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = params;
+  const result = await getSlugDataFromExternalApi(slug);
 
-    const getInitials = (name: string | undefined | null) => {
-        if (!name) return <User className="h-8 w-8" />;
-        const names = name.split(' ');
-        if (names.length > 1) {
-            return names[0][0] + names[names.length - 1][0];
-        }
-        return name.substring(0, 2);
+  if (!result.success || !result.data) {
+    return {
+      title: 'User Not Found',
+      description: 'The requested user profile could not be found.',
     };
-    
-    return (
-        <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4 sm:p-6 lg:p-8">
-            <main className="flex-1 flex justify-center items-center">
-                <Card className="w-full max-w-md shadow-2xl">
-                    <CardHeader className="text-center">
-                        {loading ? (
-                            <div className="flex flex-col items-center gap-4">
-                                <Skeleton className="h-24 w-24 rounded-full" />
-                                <Skeleton className="h-7 w-40" />
-                                <Skeleton className="h-4 w-60" />
-                            </div>
-                        ) : data ? (
-                            <div className="flex flex-col items-center gap-4">
-                                 <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                                    <AvatarImage src={data.photoURL} alt={data.name} />
-                                    <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
-                                        {getInitials(data.name)}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="text-center">
-                                    <CardTitle className="font-headline text-2xl">{data.name}</CardTitle>
-                                </div>
-                            </div>
-                        ) : null}
-                    </CardHeader>
-                    <CardContent>
-                        {loading ? (
-                            <div className="space-y-4">
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-3/4" />
-                            </div>
-                        ) : error ? (
-                            <Alert variant="destructive">
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        ) : data ? (
-                             <CardDescription className="text-center text-lg text-foreground/80 leading-relaxed">
-                                {data.bio}
-                            </CardDescription>
-                        ) : (
-                            <div className="text-center text-muted-foreground">
-                                <p>User not found.</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </main>
-        </div>
-    );
+  }
+
+  const user = result.data as SlugData;
+  const pageUrl = (process.env.NEXT_PUBLIC_BASE_URL || '') + `/user/${user.slugURL}`;
+
+  return {
+    title: `${user.name}'s Profile`,
+    description: user.bio,
+    openGraph: {
+      title: `${user.name}'s Profile`,
+      description: user.bio,
+      url: pageUrl,
+      type: 'profile',
+      images: [
+        {
+          url: user.photoURL || 'https://picsum.photos/seed/default-user/1200/630',
+          width: 1200,
+          height: 630,
+          alt: user.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${user.name}'s Profile`,
+      description: user.bio,
+      images: [user.photoURL || 'https://picsum.photos/seed/default-user/1200/630'],
+    },
+  };
+}
+
+export default async function UserSlugPage({ params }: Props) {
+    const { slug } = params;
+    const result = await getSlugDataFromExternalApi(slug);
+
+    return <UserProfileClientPage initialData={result.success ? result.data : null} error={result.error} slug={slug} />;
 }
