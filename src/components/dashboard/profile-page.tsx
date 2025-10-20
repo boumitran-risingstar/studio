@@ -1,10 +1,11 @@
 
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useUser } from "@/firebase";
 import { getUserFromExternalApi, updateUserInExternalApi } from "@/app/actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import {
@@ -18,7 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
+import { AlertTriangle, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -44,20 +45,21 @@ type ProfileData = {
     pinterestURL?: string;
 };
 
-const extractSlug = (url: string | undefined, prefix: string) => {
+const extractSlug = (url: string | undefined) => {
     if (!url) return '';
-    // Ensure prefix ends with a slash for consistent splitting
-    const consistentPrefix = prefix.endsWith('/') ? prefix : `${prefix}/`;
-    
-    // Check for both http and https, and www variants
-    const urlPattern = new RegExp(`^(https?://)?(www\\.)?${prefix.replace(/^(https?:\/\/)?(www\\.)?/, '')}`);
-    
-    if (url.match(urlPattern)) {
-        return url.replace(urlPattern, '');
+    try {
+        const parsedUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+        const pathParts = parsedUrl.pathname.split('/').filter(p => p);
+        if (pathParts.length > 0) {
+            return pathParts[pathParts.length - 1];
+        }
+        return parsedUrl.hostname.split('.')[0];
+    } catch (e) {
+        // if not a valid url, it might be just the slug
+        return url.split('/').pop() || '';
     }
-
-    return url;
 };
+
 
 const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
     <div className="space-y-2">
@@ -119,10 +121,10 @@ export function ProfilePage() {
                     }
                     setProfessions(currentProfessions);
 
-                    setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com/'));
-                    setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com/'));
-                    setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com/'));
-                    setPinterestSlug(extractSlug(data.pinterestURL, 'pinterest.com/'));
+                    setLinkedinSlug(extractSlug(data.linkedinURL));
+                    setTwitterSlug(extractSlug(data.twitterURL));
+                    setFacebookSlug(extractSlug(data.facebookURL));
+                    setPinterestSlug(extractSlug(data.pinterestURL));
                     setWebsiteURL(data.websiteURL || '');
 
                 } else {
@@ -135,7 +137,31 @@ export function ProfilePage() {
         }
     }, [user?.uid, hasFetched]);
     
+    const isValidUrl = (url: string) => {
+        if (!url) return true; // Allow empty URL
+        // Checks for a second-level domain and a top-level domain.
+        // e.g., example.com is valid, but "example" is not.
+        const urlPattern = new RegExp('^(https?://)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+        
+        // This simplified regex is enough for the user's request.
+        const simpleUrlPattern = /.+\..+/;
+        return simpleUrlPattern.test(url);
+    };
+
     const handleSaveClick = () => {
+        if (websiteURL && !isValidUrl(websiteURL)) {
+            toast({
+                title: "Invalid Website URL",
+                description: "Please enter a valid URL (e.g., example.com).",
+                variant: "destructive",
+            });
+            return;
+        }
         setShowConfirmDialog(true);
     };
 
@@ -144,7 +170,7 @@ export function ProfilePage() {
         if (!user?.uid || !isConfirmed) return;
         setIsSaving(true);
         
-        const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
+        const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/in/${linkedinSlug}` : '';
         const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
         const fullPinterestURL = pinterestSlug ? `https://pinterest.com/${pinterestSlug}` : '';
@@ -321,7 +347,7 @@ export function ProfilePage() {
                             <CardDescription>Add links to your social media and website.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
+                            <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/in/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
                             <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} placeholder="yourusername" />
@@ -371,5 +397,3 @@ export function ProfilePage() {
         </div>
     );
 }
-
-    
