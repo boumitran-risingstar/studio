@@ -88,7 +88,12 @@ export function ProfilePage() {
                                 </Avatar>
                                 <div className="space-y-1">
                                     <h2 className="text-2xl font-bold">{profileData.name}</h2>
-                                    <p className="text-muted-foreground">{profileData.email}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-muted-foreground">{profileData.email}</p>
+                                        <Badge variant={user?.emailVerified ? "default" : "destructive"} className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 text-xs">
+                                            {user?.emailVerified ? 'Verified' : 'Not Verified'}
+                                        </Badge>
+                                    </div>
                                 </div>
                             </div>
 
@@ -106,15 +111,6 @@ export function ProfilePage() {
                                         <span className="font-medium">Email</span>
                                     </div>
                                     <span>{profileData.email}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                                        <span className="font-medium">Email Verification</span>
-                                    </div>
-                                    <Badge variant={user?.emailVerified ? "default" : "destructive"} className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                                        {user?.emailVerified ? 'Verified' : 'Not Verified'}
-                                    </Badge>
                                 </div>
                             </div>
                          </>
