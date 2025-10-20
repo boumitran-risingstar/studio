@@ -8,6 +8,8 @@ type SlugData = {
     bio: string;
     photoURL?: string;
     slugURL: string;
+    qualification?: string[];
+    profession?: string[];
 };
 
 type Props = {
