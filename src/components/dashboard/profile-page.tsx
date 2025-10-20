@@ -26,9 +26,8 @@ export function ProfilePage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (user?.uid) {
+        if (user?.uid && !profileData && loading) {
             const fetchProfile = async () => {
-                setLoading(true);
                 setError(null);
                 const result = await getUserFromExternalApi(user.uid);
                 if (result.success) {
@@ -40,7 +39,7 @@ export function ProfilePage() {
             };
             fetchProfile();
         }
-    }, [user?.uid]);
+    }, [user?.uid, profileData, loading]);
 
     const getInitials = (name: string | undefined | null) => {
         if (!name) return '..';
