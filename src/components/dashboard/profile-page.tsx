@@ -8,12 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, ShieldCheck, AlertTriangle } from "lucide-react";
+import { User as UserIcon, Mail, Link as LinkIcon, AlertTriangle } from "lucide-react";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
+import { Button } from "../ui/button";
 
 type ProfileData = {
     name: string;
     email: string;
+    urlSlug?: string;
 };
 
 export function ProfilePage() {
@@ -68,6 +71,7 @@ export function ProfilePage() {
                             <div className="space-y-4 pt-4">
                                 <Skeleton className="h-8 w-full" />
                                 <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
                             </div>
                         </div>
                     )}
@@ -112,6 +116,19 @@ export function ProfilePage() {
                                     </div>
                                     <span>{profileData.email}</span>
                                 </div>
+                                {profileData.urlSlug && (
+                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <LinkIcon className="h-5 w-5 text-muted-foreground" />
+                                            <span className="font-medium">Public Profile</span>
+                                        </div>
+                                        <Button variant="link" asChild>
+                                            <Link href={`/user/${profileData.urlSlug}`} target="_blank">
+                                                View Profile
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                          </>
                     )}
