@@ -15,6 +15,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { QUALIFICATIONS } from "@/lib/qualifications";
 
 type ProfileData = {
     name: string;
@@ -31,29 +33,32 @@ export function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasFetched, setHasFetched] = useState(false);
 
     // Local state for form fields
-    const [qualification, setQualification] = useState('');
+    const [qualifications, setQualifications] = useState<string[]>([]);
     const [profession, setProfession] = useState('');
 
     useEffect(() => {
-        if (user?.uid && !profileData && loading) {
+        if (user?.uid && !hasFetched) {
             const fetchProfile = async () => {
+                setLoading(true);
                 setError(null);
                 const result = await getUserFromExternalApi(user.uid);
                 if (result.success) {
                     setProfileData(result.data);
                     // Initialize form state with fetched data
-                    setQualification(result.data.qualification || '');
+                    setQualifications(result.data.qualification ? result.data.qualification.split(',').map((q: string) => q.trim()) : []);
                     setProfession(result.data.profession || '');
                 } else {
                     setError(result.error);
                 }
                 setLoading(false);
+                setHasFetched(true);
             };
             fetchProfile();
         }
-    }, [user?.uid, profileData, loading]);
+    }, [user?.uid, hasFetched]);
 
     const handleSaveChanges = async () => {
         if (!user?.uid) return;
@@ -61,7 +66,7 @@ export function ProfilePage() {
         
         const result = await updateUserInExternalApi({
             uid: user.uid,
-            qualification,
+            qualification: qualifications.join(', '),
             profession
         });
 
@@ -71,7 +76,7 @@ export function ProfilePage() {
                 description: "Your information has been saved successfully.",
             });
             // Optimistically update local state
-            setProfileData(prev => prev ? { ...prev, qualification, profession } : null);
+            setProfileData(prev => prev ? { ...prev, qualification: qualifications.join(', '), profession } : null);
         } else {
             toast({
                 title: "Error",
@@ -168,11 +173,12 @@ export function ProfilePage() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="qualification" className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="h-4 w-4" /> Qualification</Label>
-                                    <Input 
-                                        id="qualification" 
-                                        value={qualification}
-                                        onChange={(e) => setQualification(e.target.value)}
-                                        placeholder="e.g., DDS, PhD"
+                                    <MultiSelect
+                                        options={QUALIFICATIONS}
+                                        selected={qualifications}
+                                        onChange={setQualifications}
+                                        placeholder="Select qualifications..."
+                                        className="w-full"
                                     />
                                 </div>
 
@@ -200,5 +206,3 @@ export function ProfilePage() {
         </div>
     );
 }
-
-    
