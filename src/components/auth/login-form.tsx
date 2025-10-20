@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -53,7 +54,7 @@ export function LoginForm() {
         return;
       }
       
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred.";
       if (error.code) {
