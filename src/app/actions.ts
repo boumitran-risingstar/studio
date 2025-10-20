@@ -41,13 +41,12 @@ export async function createUserInExternalApi(userData: UserData) {
 
 export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
-      const response = await fetch('https://users-164502969077.asia-southeast1.run.app/update', {
+      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?uid=${userData.uid}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          uid: userData.uid,
           qualification: userData.qualification,
           profession: userData.profession
         }),
@@ -99,5 +98,3 @@ export async function getSlugDataFromExternalApi(slug: string) {
         return { success: false, error: 'A network error occurred.' };
     }
 }
-
-    
