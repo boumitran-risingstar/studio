@@ -35,14 +35,21 @@ export async function createUserInExternalApi(userData: UserData) {
     });
 
     if (!response.ok) {
-      const apiError = await response.json();
-      return { success: false, error: apiError.message || 'An error occurred while syncing your account.' };
+        try {
+            const apiError = await response.json();
+            console.error('API Error:', apiError);
+            return { success: false, error: apiError.message || `An error occurred while syncing your account. Status: ${response.status}` };
+        } catch (e) {
+            console.error('API response error is not JSON:', response.status, response.statusText);
+            return { success: false, error: `An error occurred while syncing your account. Status: ${response.status}` };
+        }
     }
 
     const data = await response.json();
     return { success: true, data };
-  } catch (apiError) {
-    return { success: false, error: 'A network error occurred. Please try again.' };
+  } catch (apiError: any) {
+    console.error('Network or fetch error:', apiError);
+    return { success: false, error: apiError.message || 'A network error occurred. Please try again.' };
   }
 }
 
