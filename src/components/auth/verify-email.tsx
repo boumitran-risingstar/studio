@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -47,7 +48,7 @@ export function VerifyEmail() {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/login');
+    router.push('/');
   };
 
   return (

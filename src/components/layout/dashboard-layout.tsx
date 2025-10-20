@@ -46,7 +46,7 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/login');
+    router.push('/');
   };
   
   const getInitials = (email: string | null) => {
