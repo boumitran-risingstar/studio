@@ -13,18 +13,18 @@ import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationC
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { QUALIFICATIONS } from "@/lib/qualifications";
+import { PROFESSIONS } from "@/lib/professions";
 
 type ProfileData = {
     name: string;
     email: string;
     slugURL?: string;
-    qualification?: string | string[];
-    profession?: string;
+    qualification?: string[];
+    profession?: string[];
 };
 
 export function ProfilePage() {
@@ -38,7 +38,7 @@ export function ProfilePage() {
 
     // Local state for form fields
     const [qualifications, setQualifications] = useState<string[]>([]);
-    const [profession, setProfession] = useState('');
+    const [professions, setProfessions] = useState<string[]>([]);
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -49,7 +49,8 @@ export function ProfilePage() {
                 if (result.success) {
                     const data = result.data;
                     setProfileData(data);
-                    // Initialize form state with fetched data
+                    
+                    // Initialize qualifications state
                     let currentQualifications: string[] = [];
                     if (Array.isArray(data.qualification)) {
                         currentQualifications = data.qualification;
@@ -57,7 +58,16 @@ export function ProfilePage() {
                         currentQualifications = data.qualification.split(',').map((q: string) => q.trim());
                     }
                     setQualifications(currentQualifications);
-                    setProfession(data.profession || '');
+
+                    // Initialize professions state
+                    let currentProfessions: string[] = [];
+                    if (Array.isArray(data.profession)) {
+                        currentProfessions = data.profession;
+                    } else if (typeof data.profession === 'string' && data.profession) {
+                        currentProfessions = data.profession.split(',').map((p: string) => p.trim());
+                    }
+                    setProfessions(currentProfessions);
+
                 } else {
                     setError(result.error);
                 }
@@ -75,7 +85,7 @@ export function ProfilePage() {
         const result = await updateUserInExternalApi({
             uid: user.uid,
             qualification: qualifications,
-            profession
+            profession: professions
         });
 
         if (result.success) {
@@ -84,7 +94,7 @@ export function ProfilePage() {
                 description: "Your information has been saved successfully.",
             });
             // Optimistically update local state
-            setProfileData(prev => prev ? { ...prev, qualification: qualifications, profession } : null);
+            setProfileData(prev => prev ? { ...prev, qualification: qualifications, profession: professions } : null);
         } else {
             toast({
                 title: "Error",
@@ -192,11 +202,12 @@ export function ProfilePage() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="profession" className="flex items-center gap-2 text-muted-foreground"><Briefcase className="h-4 w-4" /> Profession</Label>
-                                    <Input 
-                                        id="profession" 
-                                        value={profession}
-                                        onChange={(e) => setProfession(e.target.value)}
-                                        placeholder="e.g., Dentist, Researcher"
+                                    <MultiSelect
+                                        options={PROFESSIONS}
+                                        selected={professions}
+                                        onChange={setProfessions}
+                                        placeholder="Select professions..."
+                                        className="w-full"
                                     />
                                 </div>
                             </div>

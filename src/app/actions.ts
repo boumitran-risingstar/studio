@@ -10,7 +10,7 @@ type UserData = {
 type UpdateUserData = {
     uid: string;
     qualification?: string[];
-    profession?: string;
+    profession?: string[];
 }
 
 export async function createUserInExternalApi(userData: UserData) {
