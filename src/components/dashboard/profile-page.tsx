@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { QUALIFICATIONS } from "@/lib/qualifications";
 import { PROFESSIONS } from "@/lib/professions";
+import { PinterestIcon } from "../icons/pinterest";
 
 type ProfileData = {
     name: string;
@@ -30,6 +31,15 @@ type ProfileData = {
     twitterURL?: string;
     websiteURL?: string;
     facebookURL?: string;
+    pinterestURL?: string;
+};
+
+const extractSlug = (url: string | undefined, prefix: string) => {
+    if (!url) return '';
+    if (url.startsWith(prefix)) {
+        return url.substring(prefix.length);
+    }
+    return url; // Fallback for old or manual entries
 };
 
 export function ProfilePage() {
@@ -44,10 +54,11 @@ export function ProfilePage() {
     // Local state for form fields
     const [qualifications, setQualifications] = useState<string[]>([]);
     const [professions, setProfessions] = useState<string[]>([]);
-    const [linkedinURL, setLinkedinURL] = useState('');
-    const [twitterURL, setTwitterURL] = useState('');
+    const [linkedinSlug, setLinkedinSlug] = useState('');
+    const [twitterSlug, setTwitterSlug] = useState('');
     const [websiteURL, setWebsiteURL] = useState('');
-    const [facebookURL, setFacebookURL] = useState('');
+    const [facebookSlug, setFacebookSlug] = useState('');
+    const [pinterestSlug, setPinterestSlug] = useState('');
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -78,10 +89,11 @@ export function ProfilePage() {
                     setProfessions(currentProfessions);
 
                     // Initialize social profiles state
-                    setLinkedinURL(data.linkedinURL || '');
-                    setTwitterURL(data.twitterURL || '');
+                    setLinkedinSlug(extractSlug(data.linkedinURL, 'https://linkedin.com/in/'));
+                    setTwitterSlug(extractSlug(data.twitterURL, 'https://twitter.com/'));
+                    setFacebookSlug(extractSlug(data.facebookURL, 'https://facebook.com/'));
+                    setPinterestSlug(extractSlug(data.pinterestURL, 'https://pinterest.com/'));
                     setWebsiteURL(data.websiteURL || '');
-                    setFacebookURL(data.facebookURL || '');
 
                 } else {
                     setError(result.error);
@@ -97,14 +109,20 @@ export function ProfilePage() {
         if (!user?.uid) return;
         setIsSaving(true);
         
+        const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/in/${linkedinSlug}` : '';
+        const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
+        const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
+        const fullPinterestURL = pinterestSlug ? `https://pinterest.com/${pinterestSlug}` : '';
+
         const result = await updateUserInExternalApi({
             uid: user.uid,
             qualification: qualifications,
             profession: professions,
-            linkedinURL: linkedinURL,
-            twitterURL: twitterURL,
+            linkedinURL: fullLinkedinURL,
+            twitterURL: fullTwitterURL,
             websiteURL: websiteURL,
-            facebookURL: facebookURL
+            facebookURL: fullFacebookURL,
+            pinterestURL: fullPinterestURL
         });
 
         if (result.success) {
@@ -117,10 +135,11 @@ export function ProfilePage() {
                 ...prev, 
                 qualification: qualifications, 
                 profession: professions,
-                linkedinURL,
-                twitterURL,
+                linkedinURL: fullLinkedinURL,
+                twitterURL: fullTwitterURL,
                 websiteURL,
-                facebookURL
+                facebookURL: fullFacebookURL,
+                pinterestURL: fullPinterestURL,
             } : null);
         } else {
             toast({
@@ -140,6 +159,20 @@ export function ProfilePage() {
         }
         return name.substring(0, 2);
     };
+
+    const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
+        <div className="space-y-2">
+            <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
+                <Icon className="h-4 w-4" /> {label}
+            </Label>
+            <div className="flex items-center">
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm h-10">
+                    {prefix}
+                </span>
+                <Input id={id} value={value} onChange={onChange} className="rounded-l-none" placeholder="yourusername" />
+            </div>
+        </div>
+    );
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -240,20 +273,10 @@ export function ProfilePage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="linkedinURL" className="flex items-center gap-2 text-muted-foreground"><Linkedin className="h-4 w-4" /> LinkedIn URL</Label>
-                                    <Input id="linkedinURL" value={linkedinURL} onChange={(e) => setLinkedinURL(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="twitterURL" className="flex items-center gap-2 text-muted-foreground"><Twitter className="h-4 w-4" /> Twitter (X) URL</Label>
-                                    <Input id="twitterURL" value={twitterURL} onChange={(e) => setTwitterURL(e.target.value)} placeholder="https://twitter.com/yourhandle" />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                    <Label htmlFor="facebookURL" className="flex items-center gap-2 text-muted-foreground"><Facebook className="h-4 w-4" /> Facebook URL</Label>
-                                    <Input id="facebookURL" value={facebookURL} onChange={(e) => setFacebookURL(e.target.value)} placeholder="https://facebook.com/yourprofile" />
-                                </div>
+                                <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/in/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} />
+                                <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} />
+                                <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} />
+                                <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} />
 
                                 <div className="space-y-2">
                                     <Label htmlFor="websiteURL" className="flex items-center gap-2 text-muted-foreground"><Globe className="h-4 w-4" /> Website URL</Label>

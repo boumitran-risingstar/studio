@@ -13,6 +13,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { PROFESSIONS } from "@/lib/professions";
 import { QUALIFICATIONS } from "@/lib/qualifications";
+import { PinterestIcon } from "../icons/pinterest";
 
 type SlugData = {
     name: string;
@@ -25,6 +26,7 @@ type SlugData = {
     twitterURL?: string;
     websiteURL?: string;
     facebookURL?: string;
+    pinterestURL?: string;
 };
 
 interface UserProfileClientPageProps {
@@ -199,7 +201,7 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                 </div>
                             )}
                         </CardContent>
-                         {data && (data.linkedinURL || data.twitterURL || data.websiteURL || data.facebookURL) && (
+                         {data && (data.linkedinURL || data.twitterURL || data.websiteURL || data.facebookURL || data.pinterestURL) && (
                             <CardFooter className="bg-muted/50 p-4 flex justify-center gap-4">
                                 {data.linkedinURL && (
                                     <Button variant="ghost" size="icon" asChild>
@@ -219,6 +221,13 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                     <Button variant="ghost" size="icon" asChild>
                                         <Link href={data.facebookURL} target="_blank" rel="noopener noreferrer">
                                             <Facebook className="h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                )}
+                                {data.pinterestURL && (
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link href={data.pinterestURL} target="_blank" rel="noopener noreferrer">
+                                            <PinterestIcon className="h-5 w-5" />
                                         </Link>
                                     </Button>
                                 )}
