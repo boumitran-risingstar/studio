@@ -8,6 +8,17 @@ import { getUserFromExternalApi, updateUserInExternalApi } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User as UserIcon, Mail, AlertTriangle, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
 import { Badge } from "../ui/badge";
@@ -58,6 +69,7 @@ const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placehold
         </div>
     </div>
 );
+
 
 export function ProfilePage() {
     const { user } = useUser();
@@ -313,11 +325,10 @@ export function ProfilePage() {
                             <CardDescription>Add links to your social media and website.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                             <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
+                            <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
                             <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} placeholder="yourusername" />
-
                             <div className="space-y-2">
                                 <Label htmlFor="websiteURL" className="flex items-center gap-2 text-muted-foreground"><Globe className="h-4 w-4" /> Website URL</Label>
                                 <Input id="websiteURL" value={websiteURL} onChange={(e) => setWebsiteURL(e.target.value)} placeholder="https://yourwebsite.com" />
@@ -325,9 +336,27 @@ export function ProfilePage() {
                         </CardContent>
                     </Card>
                     <div className="flex justify-end">
-                        <Button onClick={handleSaveChanges} disabled={isSaving}>
-                            {isSaving ? 'Saving...' : 'Save All Changes'}
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button disabled={isSaving}>
+                                    {isSaving ? 'Saving...' : 'Save All Changes'}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Your Changes</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Please confirm that all the information you are providing is personal data and not related to a business profile.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleSaveChanges}>
+                                    Confirm & Save
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                  </>
             )}
