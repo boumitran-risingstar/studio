@@ -41,12 +41,21 @@ export async function createUserInExternalApi(userData: UserData) {
 
 export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
-      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update`, {
+      const params = new URLSearchParams();
+      params.append('uid', userData.uid);
+      
+      if (userData.qualification) {
+        userData.qualification.forEach(q => params.append('qualification', q));
+      }
+      if (userData.profession) {
+        userData.profession.forEach(p => params.append('profession', p));
+      }
+
+      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?${params.toString()}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
       });
   
       if (!response.ok) {
