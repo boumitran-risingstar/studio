@@ -27,6 +27,13 @@ const getLabelForValue = (value: string, options: {value: string, label: string}
     return options.find(opt => opt.value === value)?.label || value;
 }
 
+const getFullWebsiteUrl = (url: string) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+    }
+    return `https://${url}`;
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
   const result = await getSlugDataFromExternalApi(slug);
@@ -60,6 +67,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description += ` Holds qualifications such as ${qualificationString}.`;
   }
 
+  const socialLinks = [
+    user.linkedinURL,
+    user.twitterURL,
+    user.facebookURL,
+    user.pinterestURL,
+    user.websiteURL ? getFullWebsiteUrl(user.websiteURL) : undefined
+  ].filter((url): url is string => !!url);
+
+  const personSchema = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": user.name,
+    "url": pageUrl,
+    "image": user.photoURL,
+    "description": user.bio,
+    "jobTitle": professionString,
+    "honorificSuffix": qualificationString,
+    "sameAs": socialLinks,
+  };
+
   return {
     title: title,
     description: description,
@@ -87,6 +114,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: description,
       images: [user.photoURL || 'https://picsum.photos/seed/default-user/1200/630'],
     },
+    alternates: {
+        canonical: pageUrl,
+    },
+    other: {
+      'application/ld+json': JSON.stringify(personSchema)
+    }
   };
 }
 
