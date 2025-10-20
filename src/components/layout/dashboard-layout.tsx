@@ -46,7 +46,7 @@ export default function DashboardLayout({
 
   const handleSignOut = async () => {
     await signOut(auth);
-    router.push('/');
+    window.location.href = '/';
   };
   
   const getInitials = (email: string | null) => {
