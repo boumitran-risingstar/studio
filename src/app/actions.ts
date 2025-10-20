@@ -25,7 +25,8 @@ export async function createUserInExternalApi(userData: UserData) {
       return { success: false, error: apiError.message || 'An error occurred while syncing your account.' };
     }
 
-    return { success: true };
+    const data = await response.json();
+    return { success: true, data };
   } catch (apiError) {
     return { success: false, error: 'A network error occurred. Please try again.' };
   }
@@ -50,4 +51,18 @@ export async function getUserFromExternalApi(uid: string) {
   } catch (apiError) {
     return { success: false, error: 'A network error occurred. Please try again.' };
   }
+}
+
+export async function getSlugDataFromExternalApi(slug: string) {
+    try {
+        const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/getSlugData?slug=${slug}`);
+        if (!response.ok) {
+            const apiError = await response.json();
+            return { success: false, error: apiError.message || 'Could not find user.' };
+        }
+        const slugData = await response.json();
+        return { success: true, data: slugData };
+    } catch (error) {
+        return { success: false, error: 'A network error occurred.' };
+    }
 }
