@@ -2,7 +2,7 @@
 "use client";
 
 import { useUser } from "@/firebase";
-import DashboardLayout from "./dashboard/layout";
+import DashboardLayout from "@/components/layout/dashboard-layout";
 
 export default function Home() {
     const { user } = useUser();

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from 'react';
@@ -66,7 +67,7 @@ export default function DashboardLayout({
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 w-full border-b bg-card">
         <div className="container flex h-16 items-center">
-          <Link href="/dashboard" className="flex items-center space-x-2 mr-6">
+          <Link href="/" className="flex items-center space-x-2 mr-6">
               <Logo className="h-6 w-6 text-primary" />
               <span className="inline-block font-bold font-headline">Mouth Metrics</span>
           </Link>
