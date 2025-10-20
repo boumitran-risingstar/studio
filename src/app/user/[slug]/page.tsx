@@ -12,6 +12,11 @@ type SlugData = {
     slugURL: string;
     qualification?: string[] | string;
     profession?: string[] | string;
+    linkedinURL?: string;
+    twitterURL?: string;
+    websiteURL?: string;
+    facebookURL?: string;
+    pinterestURL?: string;
 };
 
 type Props = {
@@ -42,20 +47,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const professionString = professions.map(p => getLabelForValue(p, PROFESSIONS)).join(', ');
   const qualificationString = qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ');
 
+  const titleParts = [user.name];
+  if (professionString) titleParts.push(professionString);
+  if (qualificationString) titleParts.push(qualificationString);
+  const title = titleParts.join(' | ');
+
   let description = user.bio;
   if (professionString) {
-      description += ` | Profession: ${professionString}`;
+      description += ` Professional roles include ${professionString}.`;
   }
   if (qualificationString) {
-      description += ` | Qualifications: ${qualificationString}`;
+      description += ` Holds qualifications such as ${qualificationString}.`;
   }
 
-
   return {
-    title: `${user.name}'s Profile`,
+    title: title,
     description: description,
     openGraph: {
-      title: `${user.name}'s Profile`,
+      title: title,
       description: description,
       url: pageUrl,
       type: 'profile',
@@ -67,10 +76,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: user.name,
         },
       ],
+      profile: {
+        firstName: user.name.split(' ')[0],
+        lastName: user.name.split(' ').slice(1).join(' '),
+      }
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${user.name}'s Profile`,
+      title: title,
       description: description,
       images: [user.photoURL || 'https://picsum.photos/seed/default-user/1200/630'],
     },

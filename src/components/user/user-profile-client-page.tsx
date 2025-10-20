@@ -84,6 +84,14 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         return [];
     }, [data?.qualification]);
 
+    const socialLinks = [
+        data?.linkedinURL,
+        data?.twitterURL,
+        data?.facebookURL,
+        data?.pinterestURL,
+        data?.websiteURL
+    ].filter(Boolean);
+
     const personSchema = data ? {
         "@context": "https://schema.org",
         "@type": "Person",
@@ -92,7 +100,8 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         "image": data.photoURL,
         "description": data.bio,
         "jobTitle": professions.map(p => getLabelForValue(p, PROFESSIONS)).join(', '),
-        "honorificSuffix": qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ')
+        "honorificSuffix": qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', '),
+        "sameAs": socialLinks,
     } : null;
 
     const getFullWebsiteUrl = (url: string) => {
