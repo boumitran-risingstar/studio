@@ -28,22 +28,30 @@ export const QUALIFICATIONS: Option[] = [
   { value: 'LLM', label: 'Master of Laws (LLM)' },
   { value: 'MEng', label: 'Master of Engineering (MEng)' },
   { value: 'MDS', label: 'Master of Dental Surgery (MDS)' },
+  { value: 'MTech', label: 'Master of Technology (M.Tech)' },
+  { value: 'MCom', label: 'Master of Commerce (M.Com)' },
+  { value: 'MCA', label: 'Master of Computer Applications (MCA)' },
 
   // Bachelor's Degrees
   { value: 'BA', label: 'Bachelor of Arts (BA)' },
   { value: 'BS', label: 'Bachelor of Science (BS)' },
   { value: 'BFA', label: 'Bachelor of Fine Arts (BFA)' },
   { value: 'BBA', label: 'Bachelor of Business Administration (BBA)' },
-  { value: 'BEng', label: 'Bachelor of Engineering (BEng)' },
+  { value: 'BEng', label: 'Bachelor of Engineering (B.Eng)' },
   { value: 'BScN', label: 'Bachelor of Science in Nursing (BScN)' },
   { value: 'BDS', label: 'Bachelor of Dental Surgery (BDS)' },
+  { value: 'BTech', label: 'Bachelor of Technology (B.Tech)' },
+  { value: 'BCom', label: 'Bachelor of Commerce (B.Com)' },
+  { value: 'BCA', label: 'Bachelor of Computer Applications (BCA)' },
+  { value: 'LLB', label: 'Bachelor of Laws (LLB)' },
+  { value: 'MBBS', label: 'Bachelor of Medicine, Bachelor of Surgery (MBBS)' },
 
   // Associate Degrees
   { value: 'AA', label: 'Associate of Arts (AA)' },
   { value: 'AS', label: 'Associate of Science (AS)' },
   { value: 'AAS', label: 'Associate of Applied Science (AAS)' },
 
-  // Professional Certifications
+  // Professional Certifications (International & Indian)
   { value: 'CPA', label: 'Certified Public Accountant (CPA)' },
   { value: 'PMP', label: 'Project Management Professional (PMP)' },
   { value: 'PE', label: 'Professional Engineer (PE)' },
@@ -52,6 +60,9 @@ export const QUALIFICATIONS: Option[] = [
   { value: 'SHRM-CP', label: 'SHRM Certified Professional (SHRM-CP)' },
   { value: 'CFA', label: 'Chartered Financial Analyst (CFA)' },
   { value: 'CFP', label: 'Certified Financial Planner (CFP)' },
+  { value: 'CA', label: 'Chartered Accountant (CA)' },
+  { value: 'CS', label: 'Company Secretary (CS)' },
+  { value: 'CMA', label: 'Cost and Management Accountant (CMA)' },
   { value: 'RDH', label: 'Registered Dental Hygienist (RDH)' },
   { value: 'CDA', label: 'Certified Dental Assistant (CDA)' },
   
@@ -63,3 +74,4 @@ export const QUALIFICATIONS: Option[] = [
   { value: 'Cert-Pedo', label: 'Certificate in Pediatric Dentistry' },
   { value: 'Cert-OMFS', label: 'Certificate in Oral and Maxillofacial Surgery' },
 ];
+
