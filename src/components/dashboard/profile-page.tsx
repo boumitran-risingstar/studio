@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ type ProfileData = {
     name: string;
     email: string;
     slugURL?: string;
-    qualification?: string;
+    qualification?: string | string[];
     profession?: string;
 };
 
@@ -46,10 +47,17 @@ export function ProfilePage() {
                 setError(null);
                 const result = await getUserFromExternalApi(user.uid);
                 if (result.success) {
-                    setProfileData(result.data);
+                    const data = result.data;
+                    setProfileData(data);
                     // Initialize form state with fetched data
-                    setQualifications(result.data.qualification ? result.data.qualification.split(',').map((q: string) => q.trim()) : []);
-                    setProfession(result.data.profession || '');
+                    let currentQualifications: string[] = [];
+                    if (Array.isArray(data.qualification)) {
+                        currentQualifications = data.qualification;
+                    } else if (typeof data.qualification === 'string' && data.qualification) {
+                        currentQualifications = data.qualification.split(',').map((q: string) => q.trim());
+                    }
+                    setQualifications(currentQualifications);
+                    setProfession(data.profession || '');
                 } else {
                     setError(result.error);
                 }
@@ -66,7 +74,7 @@ export function ProfilePage() {
         
         const result = await updateUserInExternalApi({
             uid: user.uid,
-            qualification: qualifications.join(', '),
+            qualification: qualifications,
             profession
         });
 
@@ -76,7 +84,7 @@ export function ProfilePage() {
                 description: "Your information has been saved successfully.",
             });
             // Optimistically update local state
-            setProfileData(prev => prev ? { ...prev, qualification: qualifications.join(', '), profession } : null);
+            setProfileData(prev => prev ? { ...prev, qualification: qualifications, profession } : null);
         } else {
             toast({
                 title: "Error",

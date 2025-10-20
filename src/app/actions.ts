@@ -9,7 +9,7 @@ type UserData = {
 
 type UpdateUserData = {
     uid: string;
-    qualification?: string;
+    qualification?: string[];
     profession?: string;
 }
 
