@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin-allow-popups',
           },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, OPTIONS',
+          },
+          {
+            key: 'Access-control-Allow-Headers',
+            value: 'Origin, X-Requested-With, Content-Type, Accept',
+          },
         ],
       },
     ];
