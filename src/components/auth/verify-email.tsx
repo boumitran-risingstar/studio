@@ -21,7 +21,7 @@ export function VerifyEmail() {
   useEffect(() => {
     if (!isUserLoading && user) {
         if (user.emailVerified) {
-            router.replace('/dashboard');
+            router.replace('/');
         }
     }
   }, [user, isUserLoading, router]);
