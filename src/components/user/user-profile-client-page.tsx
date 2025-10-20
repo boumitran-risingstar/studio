@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AlertTriangle, User, Briefcase, GraduationCap, Linkedin, Twitter, Globe } from "lucide-react";
+import { AlertTriangle, User, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { PROFESSIONS } from "@/lib/professions";
@@ -24,6 +24,7 @@ type SlugData = {
     linkedinURL?: string;
     twitterURL?: string;
     websiteURL?: string;
+    facebookURL?: string;
 };
 
 interface UserProfileClientPageProps {
@@ -198,7 +199,7 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                 </div>
                             )}
                         </CardContent>
-                         {data && (data.linkedinURL || data.twitterURL || data.websiteURL) && (
+                         {data && (data.linkedinURL || data.twitterURL || data.websiteURL || data.facebookURL) && (
                             <CardFooter className="bg-muted/50 p-4 flex justify-center gap-4">
                                 {data.linkedinURL && (
                                     <Button variant="ghost" size="icon" asChild>
@@ -211,6 +212,13 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                     <Button variant="ghost" size="icon" asChild>
                                         <Link href={data.twitterURL} target="_blank" rel="noopener noreferrer">
                                             <Twitter className="h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                )}
+                                {data.facebookURL && (
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link href={data.facebookURL} target="_blank" rel="noopener noreferrer">
+                                            <Facebook className="h-5 w-5" />
                                         </Link>
                                     </Button>
                                 )}

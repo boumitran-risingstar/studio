@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap, Linkedin, Twitter, Globe } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -29,6 +29,7 @@ type ProfileData = {
     linkedinURL?: string;
     twitterURL?: string;
     websiteURL?: string;
+    facebookURL?: string;
 };
 
 export function ProfilePage() {
@@ -46,6 +47,7 @@ export function ProfilePage() {
     const [linkedinURL, setLinkedinURL] = useState('');
     const [twitterURL, setTwitterURL] = useState('');
     const [websiteURL, setWebsiteURL] = useState('');
+    const [facebookURL, setFacebookURL] = useState('');
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -79,6 +81,7 @@ export function ProfilePage() {
                     setLinkedinURL(data.linkedinURL || '');
                     setTwitterURL(data.twitterURL || '');
                     setWebsiteURL(data.websiteURL || '');
+                    setFacebookURL(data.facebookURL || '');
 
                 } else {
                     setError(result.error);
@@ -100,7 +103,8 @@ export function ProfilePage() {
             profession: professions,
             linkedinURL: linkedinURL,
             twitterURL: twitterURL,
-            websiteURL: websiteURL
+            websiteURL: websiteURL,
+            facebookURL: facebookURL
         });
 
         if (result.success) {
@@ -115,7 +119,8 @@ export function ProfilePage() {
                 profession: professions,
                 linkedinURL,
                 twitterURL,
-                websiteURL
+                websiteURL,
+                facebookURL
             } : null);
         } else {
             toast({
@@ -243,6 +248,11 @@ export function ProfilePage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="twitterURL" className="flex items-center gap-2 text-muted-foreground"><Twitter className="h-4 w-4" /> Twitter (X) URL</Label>
                                     <Input id="twitterURL" value={twitterURL} onChange={(e) => setTwitterURL(e.target.value)} placeholder="https://twitter.com/yourhandle" />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="facebookURL" className="flex items-center gap-2 text-muted-foreground"><Facebook className="h-4 w-4" /> Facebook URL</Label>
+                                    <Input id="facebookURL" value={facebookURL} onChange={(e) => setFacebookURL(e.target.value)} placeholder="https://facebook.com/yourprofile" />
                                 </div>
 
                                 <div className="space-y-2">
