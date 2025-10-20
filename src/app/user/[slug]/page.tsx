@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -98,4 +97,3 @@ export default function UserSlugPage({ params }: { params: { slug: string } }) {
         </div>
     );
 }
-
