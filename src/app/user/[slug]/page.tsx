@@ -12,7 +12,6 @@ type SlugData = {
     name: string;
     bio: string;
     photoURL?: string;
-    slugURL?: string;
 };
 
 export default function UserSlugPage({ params }: { params: { slug: string } }) {
