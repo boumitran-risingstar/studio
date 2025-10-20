@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getSlugDataFromExternalApi } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,8 +15,8 @@ type SlugData = {
     photoURL?: string;
 };
 
-export default function UserSlugPage({ params }: { params: { slug: string } }) {
-    const { slug } = params;
+export default function UserSlugPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = use(params);
     const [data, setData] = useState<SlugData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
