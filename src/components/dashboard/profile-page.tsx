@@ -46,6 +46,20 @@ const extractSlug = (url: string | undefined, prefix: string) => {
     return url; // Fallback for old or manual entries
 };
 
+const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
+    <div className="space-y-2">
+        <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
+            <Icon className="h-4 w-4" /> {label}
+        </Label>
+        <div className="flex items-center">
+            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm h-10">
+                {prefix}
+            </span>
+            <Input id={id} value={value} onChange={onChange} className="rounded-l-none" placeholder={placeholder} />
+        </div>
+    </div>
+);
+
 export function ProfilePage() {
     const { user } = useUser();
     const { toast } = useToast();
@@ -163,20 +177,6 @@ export function ProfilePage() {
         }
         return name.substring(0, 2);
     };
-
-    const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
-        <div className="space-y-2">
-            <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
-                <Icon className="h-4 w-4" /> {label}
-            </Label>
-            <div className="flex items-center">
-                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm h-10">
-                    {prefix}
-                </span>
-                <Input id={id} value={value} onChange={onChange} className="rounded-l-none" placeholder={placeholder} />
-            </div>
-        </div>
-    );
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -301,5 +301,3 @@ export function ProfilePage() {
         </div>
     );
 }
-
-    
