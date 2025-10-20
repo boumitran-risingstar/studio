@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -36,14 +36,13 @@ type ProfileData = {
 
 const extractSlug = (url: string | undefined, prefix: string) => {
     if (!url) return '';
-    // Handle both http and https
     const urlWithoutProtocol = url.replace(/^(https?:\/\/)?/, '');
     const prefixWithoutProtocol = prefix.replace(/^(https?:\/\/)?/, '');
 
     if (urlWithoutProtocol.startsWith(prefixWithoutProtocol)) {
         return urlWithoutProtocol.substring(prefixWithoutProtocol.length);
     }
-    return url; // Fallback for old or manual entries
+    return url; 
 };
 
 const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
@@ -69,7 +68,6 @@ export function ProfilePage() {
     const [error, setError] = useState<string | null>(null);
     const [hasFetched, setHasFetched] = useState(false);
 
-    // Local state for form fields
     const [qualifications, setQualifications] = useState<string[]>([]);
     const [professions, setProfessions] = useState<string[]>([]);
     const [linkedinSlug, setLinkedinSlug] = useState('');
@@ -88,7 +86,6 @@ export function ProfilePage() {
                     const data = result.data;
                     setProfileData(data);
                     
-                    // Initialize qualifications state
                     let currentQualifications: string[] = [];
                     if (Array.isArray(data.qualification)) {
                         currentQualifications = data.qualification;
@@ -97,7 +94,6 @@ export function ProfilePage() {
                     }
                     setQualifications(currentQualifications);
 
-                    // Initialize professions state
                     let currentProfessions: string[] = [];
                     if (Array.isArray(data.profession)) {
                         currentProfessions = data.profession;
@@ -106,7 +102,6 @@ export function ProfilePage() {
                     }
                     setProfessions(currentProfessions);
 
-                    // Initialize social profiles state
                     setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com/'));
                     setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com/'));
                     setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com/'));
@@ -148,7 +143,6 @@ export function ProfilePage() {
                 title: "Profile Updated",
                 description: "Your information has been saved successfully.",
             });
-            // Optimistically update local state
             setProfileData(prev => prev ? { 
                 ...prev, 
                 qualification: qualifications, 
@@ -178,43 +172,69 @@ export function ProfilePage() {
         return name.substring(0, 2);
     };
 
-    return (
-        <div className="max-w-2xl mx-auto">
+    const ProfileSkeletons = () => (
+        <div className="space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">My Profile</CardTitle>
                     <CardDescription>View and manage your account details.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    {loading && (
-                        <div className="space-y-6">
-                            <div className="flex items-center space-x-4">
-                                <Skeleton className="h-24 w-24 rounded-full" />
-                                <div className="space-y-2">
-                                    <Skeleton className="h-6 w-48" />
-                                    <Skeleton className="h-4 w-64" />
-                                </div>
-                            </div>
-                            <div className="space-y-4 pt-4">
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                            </div>
+                <CardContent>
+                    <div className="flex items-center space-x-4">
+                        <Skeleton className="h-24 w-24 rounded-full" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-6 w-48" />
+                            <Skeleton className="h-4 w-64" />
                         </div>
-                    )}
-                    {error && (
-                        <Alert variant="destructive">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Professional Information</CardTitle>
+                     <CardDescription>Manage your qualifications and professions.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+            <Card>
+                 <CardHeader>
+                    <CardTitle>Social Profiles</CardTitle>
+                    <CardDescription>Add links to your social media profiles.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
 
-                    {!loading && !error && profileData && (
-                         <>
+    if (loading) {
+        return <div className="max-w-2xl mx-auto"><ProfileSkeletons /></div>;
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto space-y-6">
+            {error && (
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+
+            {!error && profileData && (
+                 <>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline">My Profile</CardTitle>
+                            <CardDescription>View and manage your account details.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
                             <div className="flex items-center space-x-4">
                                 <Avatar className="h-24 w-24">
                                     <AvatarImage src={user?.photoURL || undefined} alt={profileData.name} />
@@ -224,7 +244,7 @@ export function ProfilePage() {
                                     <h2 className="text-2xl font-bold">
                                         {profileData.slugURL ? (
                                             <Link href={`/user/${profileData.slugURL}`} className="hover:underline" target="_blank">
-                                                {profileData.name} <LinkIcon className="inline h-4 w-4 text-muted-foreground"/>
+                                                {profileData.name}
                                             </Link>
                                         ) : (
                                             profileData.name
@@ -238,7 +258,6 @@ export function ProfilePage() {
                                     </div>
                                 </div>
                             </div>
-
                             <div className="space-y-4 pt-4">
                                 <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                                     <div className="flex items-center gap-3">
@@ -254,50 +273,64 @@ export function ProfilePage() {
                                     </div>
                                     <span>{profileData.email}</span>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="qualification" className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="h-4 w-4" /> Qualification</Label>
-                                    <MultiSelect
-                                        options={QUALIFICATIONS}
-                                        selected={qualifications}
-                                        onChange={setQualifications}
-                                        placeholder="Select qualifications..."
-                                        className="w-full"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="profession" className="flex items-center gap-2 text-muted-foreground"><Briefcase className="h-4 w-4" /> Profession</Label>
-                                    <MultiSelect
-                                        options={PROFESSIONS}
-                                        selected={professions}
-                                        onChange={setProfessions}
-                                        placeholder="Select professions..."
-                                        className="w-full"
-                                    />
-                                </div>
-
-                                <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="in/your-profile" />
-                                <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} placeholder="yourusername" />
-                                <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} placeholder="yourusername" />
-                                <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} placeholder="yourusername" />
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="websiteURL" className="flex items-center gap-2 text-muted-foreground"><Globe className="h-4 w-4" /> Website URL</Label>
-                                    <Input id="websiteURL" value={websiteURL} onChange={(e) => setWebsiteURL(e.target.value)} placeholder="https://yourwebsite.com" />
-                                </div>
                             </div>
-                         </>
-                    )}
-                </CardContent>
-                {!loading && !error && profileData && (
-                     <CardFooter className="border-t px-6 py-4">
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Professional Information</CardTitle>
+                            <CardDescription>Let others know about your expertise and background.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="qualification" className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="h-4 w-4" /> Qualification</Label>
+                                <MultiSelect
+                                    options={QUALIFICATIONS}
+                                    selected={qualifications}
+                                    onChange={setQualifications}
+                                    placeholder="Select qualifications..."
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="profession" className="flex items-center gap-2 text-muted-foreground"><Briefcase className="h-4 w-4" /> Profession</Label>
+                                <MultiSelect
+                                    options={PROFESSIONS}
+                                    selected={professions}
+                                    onChange={setProfessions}
+                                    placeholder="Select professions..."
+                                    className="w-full"
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Social Profiles</CardTitle>
+                            <CardDescription>Add links to your social media and website.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                             <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
+                            <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} placeholder="yourusername" />
+                            <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} placeholder="yourusername" />
+                            <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} placeholder="yourusername" />
+
+                            <div className="space-y-2">
+                                <Label htmlFor="websiteURL" className="flex items-center gap-2 text-muted-foreground"><Globe className="h-4 w-4" /> Website URL</Label>
+                                <Input id="websiteURL" value={websiteURL} onChange={(e) => setWebsiteURL(e.target.value)} placeholder="https://yourwebsite.com" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <div className="flex justify-end">
                         <Button onClick={handleSaveChanges} disabled={isSaving}>
-                            {isSaving ? 'Saving...' : 'Save Changes'}
+                            {isSaving ? 'Saving...' : 'Save All Changes'}
                         </Button>
-                    </CardFooter>
-                )}
-            </Card>
+                    </div>
+                 </>
+            )}
         </div>
     );
 }
