@@ -2,19 +2,25 @@
 import type { Metadata } from 'next';
 import { getSlugDataFromExternalApi } from "@/app/actions";
 import { UserProfileClientPage } from '@/components/user/user-profile-client-page';
+import { PROFESSIONS } from '@/lib/professions';
+import { QUALIFICATIONS } from '@/lib/qualifications';
 
 type SlugData = {
     name: string;
     bio: string;
     photoURL?: string;
     slugURL: string;
-    qualification?: string[];
-    profession?: string[];
+    qualification?: string[] | string;
+    profession?: string[] | string;
 };
 
 type Props = {
   params: { slug: string };
 };
+
+const getLabelForValue = (value: string, options: {value: string, label: string}[]) => {
+    return options.find(opt => opt.value === value)?.label || value;
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = params;
@@ -30,12 +36,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const user = result.data as SlugData;
   const pageUrl = (process.env.NEXT_PUBLIC_BASE_URL || '') + `/user/${user.slugURL}`;
 
+  const professions = Array.isArray(user.profession) ? user.profession : (typeof user.profession === 'string' ? user.profession.split(',').map(p => p.trim()) : []);
+  const qualifications = Array.isArray(user.qualification) ? user.qualification : (typeof user.qualification === 'string' ? user.qualification.split(',').map(q => q.trim()) : []);
+  
+  const professionString = professions.map(p => getLabelForValue(p, PROFESSIONS)).join(', ');
+  const qualificationString = qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ');
+
+  let description = user.bio;
+  if (professionString) {
+      description += ` | Profession: ${professionString}`;
+  }
+  if (qualificationString) {
+      description += ` | Qualifications: ${qualificationString}`;
+  }
+
+
   return {
     title: `${user.name}'s Profile`,
-    description: user.bio,
+    description: description,
     openGraph: {
       title: `${user.name}'s Profile`,
-      description: user.bio,
+      description: description,
       url: pageUrl,
       type: 'profile',
       images: [
@@ -50,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: `${user.name}'s Profile`,
-      description: user.bio,
+      description: description,
       images: [user.photoURL || 'https://picsum.photos/seed/default-user/1200/630'],
     },
   };

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getSlugDataFromExternalApi } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +9,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertTriangle, User, Briefcase, GraduationCap } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
 import { PROFESSIONS } from "@/lib/professions";
 import { QUALIFICATIONS } from "@/lib/qualifications";
 
@@ -63,17 +62,17 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         return options.find(opt => opt.value === value)?.label || value;
     }
     
-    // Safely get professions as an array
     const professions = React.useMemo(() => {
-        if (Array.isArray(data?.profession)) return data.profession;
-        if (typeof data?.profession === 'string' && data.profession) return data.profession.split(',').map(p => p.trim());
+        if (!data?.profession) return [];
+        if (Array.isArray(data.profession)) return data.profession;
+        if (typeof data.profession === 'string') return data.profession.split(',').map(p => p.trim());
         return [];
     }, [data?.profession]);
 
-    // Safely get qualifications as an array
     const qualifications = React.useMemo(() => {
-        if (Array.isArray(data?.qualification)) return data.qualification;
-        if (typeof data?.qualification === 'string' && data.qualification) return data.qualification.split(',').map(q => q.trim());
+        if (!data?.qualification) return [];
+        if (Array.isArray(data.qualification)) return data.qualification;
+        if (typeof data.qualification === 'string') return data.qualification.split(',').map(q => q.trim());
         return [];
     }, [data?.qualification]);
 
