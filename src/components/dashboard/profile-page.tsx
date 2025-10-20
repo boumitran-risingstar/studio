@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle, LinkIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -16,7 +16,7 @@ import { Button } from "../ui/button";
 type ProfileData = {
     name: string;
     email: string;
-    urlSlug?: string;
+    slugURL?: string;
 };
 
 export function ProfilePage() {
@@ -91,8 +91,8 @@ export function ProfilePage() {
                                 </Avatar>
                                 <div className="space-y-1">
                                     <h2 className="text-2xl font-bold">
-                                    {profileData.urlSlug ? (
-                                        <Link href={`/user/${profileData.urlSlug}`} className="hover:underline" target="_blank">
+                                    {profileData.slugURL ? (
+                                        <Link href={`/user/${profileData.slugURL}`} className="hover:underline" target="_blank">
                                             {profileData.name}
                                         </Link>
                                     ) : (
