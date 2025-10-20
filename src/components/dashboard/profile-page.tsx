@@ -31,6 +31,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { QUALIFICATIONS } from "@/lib/qualifications";
 import { PROFESSIONS } from "@/lib/professions";
 import { PinterestIcon } from "../icons/pinterest";
+import { Checkbox } from "../ui/checkbox";
 
 type ProfileData = {
     name: string;
@@ -47,13 +48,17 @@ type ProfileData = {
 
 const extractSlug = (url: string | undefined, prefix: string) => {
     if (!url) return '';
-    const urlWithoutProtocol = url.replace(/^(https?:\/\/)?/, '');
-    const prefixWithoutProtocol = prefix.replace(/^(https?:\/\/)?/, '');
-
-    if (urlWithoutProtocol.startsWith(prefixWithoutProtocol)) {
-        return urlWithoutProtocol.substring(prefixWithoutProtocol.length);
+    // Ensure prefix ends with a slash for consistent splitting
+    const consistentPrefix = prefix.endsWith('/') ? prefix : `${prefix}/`;
+    
+    // Check for both http and https, and www variants
+    const urlPattern = new RegExp(`^(https?://)?(www\\.)?${consistentPrefix.replace(/^(https?:\/\/)?(www\.)?/, '')}`);
+    
+    if (url.match(urlPattern)) {
+        return url.replace(urlPattern, '');
     }
-    return url; 
+
+    return url;
 };
 
 const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
@@ -87,6 +92,7 @@ export function ProfilePage() {
     const [websiteURL, setWebsiteURL] = useState('');
     const [facebookSlug, setFacebookSlug] = useState('');
     const [pinterestSlug, setPinterestSlug] = useState('');
+    const [isConfirmed, setIsConfirmed] = useState(false);
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -114,10 +120,10 @@ export function ProfilePage() {
                     }
                     setProfessions(currentProfessions);
 
-                    setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com/'));
-                    setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com/'));
-                    setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com/'));
-                    setPinterestSlug(extractSlug(data.pinterestURL, 'pinterest.com/'));
+                    setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com'));
+                    setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com'));
+                    setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com'));
+                    setPinterestSlug(extractSlug(data.pinterestURL, 'pinterest.com'));
                     setWebsiteURL(data.websiteURL || '');
 
                 } else {
@@ -131,7 +137,7 @@ export function ProfilePage() {
     }, [user?.uid, hasFetched]);
 
     const handleSaveChanges = async () => {
-        if (!user?.uid) return;
+        if (!user?.uid || !isConfirmed) return;
         setIsSaving(true);
         
         const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
@@ -173,6 +179,7 @@ export function ProfilePage() {
             });
         }
         setIsSaving(false);
+        setIsConfirmed(false); // Reset confirmation after saving
     };
 
     const getInitials = (name: string | undefined | null) => {
@@ -336,7 +343,7 @@ export function ProfilePage() {
                         </CardContent>
                     </Card>
                     <div className="flex justify-end">
-                        <AlertDialog>
+                        <AlertDialog onOpenChange={(open) => !open && setIsConfirmed(false)}>
                             <AlertDialogTrigger asChild>
                                 <Button disabled={isSaving}>
                                     {isSaving ? 'Saving...' : 'Save All Changes'}
@@ -349,9 +356,18 @@ export function ProfilePage() {
                                     Please confirm that all the information you are providing is personal data and not related to a business profile.
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
+                                <div className="flex items-center space-x-2 my-4">
+                                    <Checkbox id="terms" checked={isConfirmed} onCheckedChange={(checked) => setIsConfirmed(checked as boolean)} />
+                                    <label
+                                        htmlFor="terms"
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                        I agree that this is personal data.
+                                    </label>
+                                </div>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleSaveChanges}>
+                                <AlertDialogAction onClick={handleSaveChanges} disabled={!isConfirmed || isSaving}>
                                     Confirm & Save
                                 </AlertDialogAction>
                                 </AlertDialogFooter>
