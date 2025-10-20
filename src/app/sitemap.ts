@@ -1,5 +1,4 @@
 import { MetadataRoute } from 'next';
-import { QUALIFICATIONS } from '@/lib/qualifications';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://mouth-metrics-d696a.web.app';
@@ -16,15 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
   }));
 
-  // Dynamic routes for each qualification
-  const qualificationRoutes = QUALIFICATIONS.map((qual) => ({
-    url: `${baseUrl}/qualification/${qual.value}`,
-    lastModified: new Date(),
-  }));
-
   // NOTE: We cannot dynamically generate user profile slugs (/user/[slug]) 
   // as there is no API endpoint available to fetch a list of all users.
   // Once that is available, this sitemap can be updated to include them.
 
-  return [...staticRoutes, ...qualificationRoutes];
+  return [...staticRoutes];
 }
