@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -300,22 +301,6 @@ export function ProfilePage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-4 pt-4">
-                                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <UserIcon className="h-5 w-5 text-muted-foreground" />
-                                        <span className="font-medium">Name</span>
-                                    </div>
-                                    <span>{profileData.name}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                    <div className="flex items-center gap-3">
-                                        <Mail className="h-5 w-5 text-muted-foreground" />
-                                        <span className="font-medium">Email</span>
-                                    </div>
-                                    <span>{profileData.email}</span>
-                                </div>
-                            </div>
                         </CardContent>
                     </Card>
 
@@ -405,5 +390,7 @@ export function ProfilePage() {
         </div>
     );
 }
+
+    
 
     
