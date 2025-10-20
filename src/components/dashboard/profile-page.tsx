@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -135,26 +134,8 @@ export function ProfilePage() {
             fetchProfile();
         }
     }, [user?.uid, hasFetched]);
-
-    const isValidUrl = (url: string) => {
-        if (!url) return true; // Allow empty URL
-        try {
-            const newUrl = new URL(url);
-            return newUrl.protocol === 'http:' || newUrl.protocol === 'https:';
-        } catch (_) {
-            return false;
-        }
-    };
     
     const handleSaveClick = () => {
-        if (!isValidUrl(websiteURL)) {
-            toast({
-                title: "Invalid URL",
-                description: "Please enter a valid website URL, including http:// or https://.",
-                variant: "destructive",
-            });
-            return;
-        }
         setShowConfirmDialog(true);
     };
 
@@ -390,7 +371,5 @@ export function ProfilePage() {
         </div>
     );
 }
-
-    
 
     
