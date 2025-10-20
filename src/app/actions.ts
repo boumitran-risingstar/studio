@@ -41,15 +41,12 @@ export async function createUserInExternalApi(userData: UserData) {
 
 export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
-      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?uid=${userData.uid}`, {
+      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          qualification: userData.qualification,
-          profession: userData.profession
-        }),
+        body: JSON.stringify(userData),
       });
   
       if (!response.ok) {
