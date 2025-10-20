@@ -59,12 +59,20 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
       });
   
       if (!response.ok) {
-        const apiError = await response.json();
-        return { success: false, error: apiError.message || 'An error occurred while updating your profile.' };
+        // The API might return an error with a JSON body
+        try {
+            const apiError = await response.json();
+            return { success: false, error: apiError.message || 'An error occurred while updating your profile.' };
+        } catch (e) {
+            // If parsing the error fails, return a generic error
+            return { success: false, error: `An error occurred while updating your profile. Status: ${response.status}` };
+        }
       }
   
-      const data = await response.json();
-      return { success: true, data };
+      // If the response is OK, we don't expect a body for a PUT request.
+      // Simply return success.
+      return { success: true };
+
     } catch (apiError) {
       return { success: false, error: 'A network error occurred. Please try again.' };
     }
