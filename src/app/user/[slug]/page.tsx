@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titleParts = [user.name];
   if (professionString) titleParts.push(professionString);
   if (qualificationString) titleParts.push(qualificationString);
-  const title = titleParts.join(' | ');
+  const title = titleParts.filter(Boolean).join(' | ');
 
   let description = user.bio;
   if (professionString) {
@@ -86,6 +86,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     "honorificSuffix": qualificationString,
     "sameAs": socialLinks,
   };
+  
+  const nameParts = user.name ? user.name.split(' ') : [];
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
 
   return {
     title: title,
@@ -104,8 +108,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
       ],
       profile: {
-        firstName: user.name.split(' ')[0],
-        lastName: user.name.split(' ').slice(1).join(' '),
+        firstName: firstName,
+        lastName: lastName,
       }
     },
     twitter: {
