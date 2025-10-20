@@ -95,6 +95,13 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
         "honorificSuffix": qualifications.map(q => getLabelForValue(q, QUALIFICATIONS)).join(', ')
     } : null;
 
+    const getFullWebsiteUrl = (url: string) => {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        return `https://${url}`;
+    };
+
     return (
         <>
             {personSchema && (
@@ -233,7 +240,7 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                 )}
                                 {data.websiteURL && (
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link href={data.websiteURL} target="_blank" rel="noopener noreferrer">
+                                        <Link href={getFullWebsiteUrl(data.websiteURL)} target="_blank" rel="noopener noreferrer">
                                             <Globe className="h-5 w-5" />
                                         </Link>
                                     </Button>
