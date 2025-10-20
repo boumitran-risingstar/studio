@@ -16,6 +16,8 @@ type UpdateUserData = {
     websiteURL?: string;
     facebookURL?: string;
     pinterestURL?: string;
+    confirmationText?: string;
+    confirmationTimestamp?: string;
 }
 
 export async function createUserInExternalApi(userData: UserData) {
@@ -60,6 +62,8 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
       if (userData.websiteURL) params.append('websiteURL', userData.websiteURL);
       if (userData.facebookURL) params.append('facebookURL', userData.facebookURL);
       if (userData.pinterestURL) params.append('pinterestURL', userData.pinterestURL);
+      if (userData.confirmationText) params.append('confirmationText', userData.confirmationText);
+      if (userData.confirmationTimestamp) params.append('confirmationTimestamp', userData.confirmationTimestamp);
 
 
       const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?${params.toString()}`, {

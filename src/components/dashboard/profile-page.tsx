@@ -138,7 +138,6 @@ export function ProfilePage() {
     
     const isValidUrl = (url: string) => {
         if (!url) return true; // Allow empty URL
-        // This simplified regex is enough for the user's request.
         const simpleUrlPattern = /.+\..+/;
         return simpleUrlPattern.test(url);
     };
@@ -165,6 +164,9 @@ export function ProfilePage() {
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
         const fullPinterestURL = pinterestSlug ? `https://pinterest.com/${pinterestSlug}` : '';
 
+        const confirmationText = "I confirm this is my personal data and I own it.";
+        const confirmationTimestamp = new Date().toISOString();
+
         const result = await updateUserInExternalApi({
             uid: user.uid,
             qualification: qualifications,
@@ -173,7 +175,9 @@ export function ProfilePage() {
             twitterURL: fullTwitterURL,
             websiteURL: websiteURL,
             facebookURL: fullFacebookURL,
-            pinterestURL: fullPinterestURL
+            pinterestURL: fullPinterestURL,
+            confirmationText: confirmationText,
+            confirmationTimestamp: confirmationTimestamp,
         });
 
         if (result.success) {
@@ -361,7 +365,7 @@ export function ProfilePage() {
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Confirm Your Changes</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Please confirm that all the information you are providing is your personal data, that you own it, and it is not related to a business profile.
+                                    Please confirm that all the information you are providing is your personal data and that you own it.
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <div className="flex items-center space-x-2 my-4">
