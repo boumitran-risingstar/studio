@@ -2,13 +2,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from 'next/link';
 import { getSlugDataFromExternalApi } from "@/app/actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AlertTriangle, User, Briefcase, GraduationCap } from "lucide-react";
+import { AlertTriangle, User, Briefcase, GraduationCap, Linkedin, Twitter, Globe } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { PROFESSIONS } from "@/lib/professions";
 import { QUALIFICATIONS } from "@/lib/qualifications";
 
@@ -19,6 +21,9 @@ type SlugData = {
     slugURL: string;
     qualification?: string[] | string;
     profession?: string[] | string;
+    linkedinURL?: string;
+    twitterURL?: string;
+    websiteURL?: string;
 };
 
 interface UserProfileClientPageProps {
@@ -181,7 +186,7 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                         </div>
                                     )}
 
-                                    {professions.length === 0 && qualifications.length === 0 && (
+                                    {professions.length === 0 && qualifications.length === 0 && !data.linkedinURL && !data.twitterURL && !data.websiteURL && (
                                         <div className="text-center text-muted-foreground py-4">
                                             <p>No additional details available.</p>
                                         </div>
@@ -193,6 +198,31 @@ export function UserProfileClientPage({ initialData, error: initialError, slug }
                                 </div>
                             )}
                         </CardContent>
+                         {data && (data.linkedinURL || data.twitterURL || data.websiteURL) && (
+                            <CardFooter className="bg-muted/50 p-4 flex justify-center gap-4">
+                                {data.linkedinURL && (
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link href={data.linkedinURL} target="_blank" rel="noopener noreferrer">
+                                            <Linkedin className="h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                )}
+                                {data.twitterURL && (
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link href={data.twitterURL} target="_blank" rel="noopener noreferrer">
+                                            <Twitter className="h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                )}
+                                {data.websiteURL && (
+                                    <Button variant="ghost" size="icon" asChild>
+                                        <Link href={data.websiteURL} target="_blank" rel="noopener noreferrer">
+                                            <Globe className="h-5 w-5" />
+                                        </Link>
+                                    </Button>
+                                )}
+                            </CardFooter>
+                        )}
                     </Card>
                 </main>
             </div>

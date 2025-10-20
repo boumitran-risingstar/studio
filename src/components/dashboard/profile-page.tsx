@@ -9,11 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap, Linkedin, Twitter, Globe } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { QUALIFICATIONS } from "@/lib/qualifications";
@@ -25,6 +26,9 @@ type ProfileData = {
     slugURL?: string;
     qualification?: string[];
     profession?: string[];
+    linkedinURL?: string;
+    twitterURL?: string;
+    websiteURL?: string;
 };
 
 export function ProfilePage() {
@@ -39,6 +43,9 @@ export function ProfilePage() {
     // Local state for form fields
     const [qualifications, setQualifications] = useState<string[]>([]);
     const [professions, setProfessions] = useState<string[]>([]);
+    const [linkedinURL, setLinkedinURL] = useState('');
+    const [twitterURL, setTwitterURL] = useState('');
+    const [websiteURL, setWebsiteURL] = useState('');
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -68,6 +75,11 @@ export function ProfilePage() {
                     }
                     setProfessions(currentProfessions);
 
+                    // Initialize social profiles state
+                    setLinkedinURL(data.linkedinURL || '');
+                    setTwitterURL(data.twitterURL || '');
+                    setWebsiteURL(data.websiteURL || '');
+
                 } else {
                     setError(result.error);
                 }
@@ -85,7 +97,10 @@ export function ProfilePage() {
         const result = await updateUserInExternalApi({
             uid: user.uid,
             qualification: qualifications,
-            profession: professions
+            profession: professions,
+            linkedinURL: linkedinURL,
+            twitterURL: twitterURL,
+            websiteURL: websiteURL
         });
 
         if (result.success) {
@@ -94,7 +109,14 @@ export function ProfilePage() {
                 description: "Your information has been saved successfully.",
             });
             // Optimistically update local state
-            setProfileData(prev => prev ? { ...prev, qualification: qualifications, profession: professions } : null);
+            setProfileData(prev => prev ? { 
+                ...prev, 
+                qualification: qualifications, 
+                profession: professions,
+                linkedinURL,
+                twitterURL,
+                websiteURL
+            } : null);
         } else {
             toast({
                 title: "Error",
@@ -132,6 +154,8 @@ export function ProfilePage() {
                                 </div>
                             </div>
                             <div className="space-y-4 pt-4">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
                                 <Skeleton className="h-10 w-full" />
                                 <Skeleton className="h-10 w-full" />
                                 <Skeleton className="h-10 w-full" />
@@ -209,6 +233,21 @@ export function ProfilePage() {
                                         placeholder="Select professions..."
                                         className="w-full"
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="linkedinURL" className="flex items-center gap-2 text-muted-foreground"><Linkedin className="h-4 w-4" /> LinkedIn URL</Label>
+                                    <Input id="linkedinURL" value={linkedinURL} onChange={(e) => setLinkedinURL(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="twitterURL" className="flex items-center gap-2 text-muted-foreground"><Twitter className="h-4 w-4" /> Twitter (X) URL</Label>
+                                    <Input id="twitterURL" value={twitterURL} onChange={(e) => setTwitterURL(e.target.value)} placeholder="https://twitter.com/yourhandle" />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="websiteURL" className="flex items-center gap-2 text-muted-foreground"><Globe className="h-4 w-4" /> Website URL</Label>
+                                    <Input id="websiteURL" value={websiteURL} onChange={(e) => setWebsiteURL(e.target.value)} placeholder="https://yourwebsite.com" />
                                 </div>
                             </div>
                          </>
