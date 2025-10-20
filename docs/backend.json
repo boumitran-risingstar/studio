@@ -1,42 +1,6 @@
 
 {
-  "entities": {
-    "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "User",
-      "type": "object",
-      "description": "Represents a user of the Mouth Metrics application.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user entity."
-        }
-      },
-      "required": [
-        "id"
-      ]
-    },
-    "Dashboard": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Dashboard",
-      "type": "object",
-      "description": "Represents the user dashboard, displaying content relevant to the user's data and metrics.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the dashboard entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:1 Dashboard)"
-        }
-      },
-      "required": [
-        "id",
-        "userId"
-      ]
-    }
-  },
+  "entities": {},
   "auth": {
     "providers": [
       "password",
