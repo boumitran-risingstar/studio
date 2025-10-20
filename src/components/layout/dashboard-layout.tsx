@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User as UserIcon, Settings, ShieldCheck } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, ShieldCheck, Briefcase } from 'lucide-react';
 import { Logo } from '@/components/icons/logo';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -96,6 +96,12 @@ export default function DashboardLayout({
                   <Link href="/profile">
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                  <Link href="/business">
+                    <Briefcase className="mr-2 h-4 w-4" />
+                    <span>My Business</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
