@@ -120,10 +120,10 @@ export function ProfilePage() {
                     }
                     setProfessions(currentProfessions);
 
-                    setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com'));
-                    setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com'));
-                    setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com'));
-                    setPinterestSlug(extractSlug(data.pinterestURL, 'pinterest.com'));
+                    setLinkedinSlug(extractSlug(data.linkedinURL, 'linkedin.com/'));
+                    setTwitterSlug(extractSlug(data.twitterURL, 'twitter.com/'));
+                    setFacebookSlug(extractSlug(data.facebookURL, 'facebook.com/'));
+                    setPinterestSlug(extractSlug(data.pinterestURL, 'pinterest.com/'));
                     setWebsiteURL(data.websiteURL || '');
 
                 } else {
@@ -136,10 +136,30 @@ export function ProfilePage() {
         }
     }, [user?.uid, hasFetched]);
 
+    const isValidUrl = (url: string) => {
+        if (!url) return true; // Allow empty URL
+        try {
+            const newUrl = new URL(url);
+            return newUrl.protocol === 'http:' || newUrl.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    };
+
     const handleSaveChanges = async () => {
         if (!user?.uid || !isConfirmed) return;
         setIsSaving(true);
         
+        if (!isValidUrl(websiteURL)) {
+            toast({
+                title: "Invalid URL",
+                description: "Please enter a valid website URL, including http:// or https://.",
+                variant: "destructive",
+            });
+            setIsSaving(false);
+            return;
+        }
+
         const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
         const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
