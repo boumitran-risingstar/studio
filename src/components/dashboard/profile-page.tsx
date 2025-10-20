@@ -60,7 +60,6 @@ const extractSlug = (url: string | undefined) => {
     }
 };
 
-
 const SocialInput = ({ id, label, icon: Icon, prefix, value, onChange, placeholder }: { id: string, label: string, icon: React.ElementType, prefix: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, placeholder?: string }) => (
     <div className="space-y-2">
         <Label htmlFor={id} className="flex items-center gap-2 text-muted-foreground">
@@ -139,15 +138,6 @@ export function ProfilePage() {
     
     const isValidUrl = (url: string) => {
         if (!url) return true; // Allow empty URL
-        // Checks for a second-level domain and a top-level domain.
-        // e.g., example.com is valid, but "example" is not.
-        const urlPattern = new RegExp('^(https?://)?' + // protocol
-            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-            '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-        
         // This simplified regex is enough for the user's request.
         const simpleUrlPattern = /.+\..+/;
         return simpleUrlPattern.test(url);
@@ -170,7 +160,7 @@ export function ProfilePage() {
         if (!user?.uid || !isConfirmed) return;
         setIsSaving(true);
         
-        const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/in/${linkedinSlug}` : '';
+        const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
         const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
         const fullPinterestURL = pinterestSlug ? `https://pinterest.com/${pinterestSlug}` : '';
@@ -347,7 +337,7 @@ export function ProfilePage() {
                             <CardDescription>Add links to your social media and website.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/in/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
+                            <SocialInput id="linkedinSlug" label="LinkedIn" icon={Linkedin} prefix="linkedin.com/" value={linkedinSlug} onChange={(e) => setLinkedinSlug(e.target.value)} placeholder="your-profile" />
                             <SocialInput id="twitterSlug" label="Twitter (X)" icon={Twitter} prefix="twitter.com/" value={twitterSlug} onChange={(e) => setTwitterSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="facebookSlug" label="Facebook" icon={Facebook} prefix="facebook.com/" value={facebookSlug} onChange={(e) => setFacebookSlug(e.target.value)} placeholder="yourusername" />
                             <SocialInput id="pinterestSlug" label="Pinterest" icon={PinterestIcon} prefix="pinterest.com/" value={pinterestSlug} onChange={(e) => setPinterestSlug(e.target.value)} placeholder="yourusername" />
@@ -371,7 +361,7 @@ export function ProfilePage() {
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Confirm Your Changes</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Please confirm that all the information you are providing is personal data and not related to a business profile.
+                                    Please confirm that all the information you are providing is your personal data, that you own it, and it is not related to a business profile.
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <div className="flex items-center space-x-2 my-4">
@@ -380,7 +370,7 @@ export function ProfilePage() {
                                         htmlFor="terms"
                                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
-                                        I agree that this is personal data.
+                                        I confirm this is my personal data and I own it.
                                     </label>
                                 </div>
                                 <AlertDialogFooter>
