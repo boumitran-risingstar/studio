@@ -51,8 +51,10 @@ export function LoginForm() {
     },
   });
 
-  async function handleSocialLogin(provider: GoogleAuthProvider) {
+  async function handleSocialLogin() {
     setSocialLoading(true);
+    const provider = new GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/business.manage');
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
@@ -179,7 +181,7 @@ export function LoginForm() {
           </div>
         </div>
         <div className="mt-6">
-          <Button variant="outline" className="w-full" onClick={() => handleSocialLogin(new GoogleAuthProvider())} disabled={socialLoading || loading}>
+          <Button variant="outline" className="w-full" onClick={handleSocialLogin} disabled={socialLoading || loading}>
             {socialLoading ? 'Signing in...' : <> <GoogleIcon className="mr-2 h-4 w-4" /> Google </>}
           </Button>
         </div>
