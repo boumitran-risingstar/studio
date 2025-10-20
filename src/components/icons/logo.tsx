@@ -8,7 +8,16 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
       fill="currentColor"
       {...props}
     >
-      <path d="M18 2H6C4.9 2 4 2.9 4 4V14C4 16.97 6.16 19.54 9 20.49V22H15V20.49C17.84 19.54 20 16.97 20 14V4C20 2.9 19.1 2 18 2ZM8.5 12.5C7.67 12.5 7 11.83 7 11S7.67 9.5 8.5 9.5 10 10.17 10 11S9.33 12.5 8.5 12.5ZM15.5 12.5C14.67 12.5 14 11.83 14 11S14.67 9.5 15.5 9.5 17 10.17 17 11S16.33 12.5 15.5 12.5Z" />
+      <defs>
+        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: "rgb(0, 255, 150)", stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: "rgb(0, 150, 255)", stopOpacity: 1 }} />
+        </linearGradient>
+      </defs>
+      <path
+        fill="url(#logo-gradient)"
+        d="M4 20h2v-7h-2v7zm4 0h2v-9h-2v9zm4 0h2v-12h-2v12zm8.41-8.59l-1.41-1.41L18 10.59V4h-2v7.59l-2.41-2.42-1.41 1.41L15.59 14H17v-1.59l2-2L20.41 9l-1-1 1.59-1.59zM15 20c-2.76 0-5-2.24-5-5s2.24-5 5-5v1c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4h1c0 2.76-2.24 5-5 5z"
+      />
     </svg>
   );
 }
