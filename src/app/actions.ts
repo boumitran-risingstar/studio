@@ -7,6 +7,12 @@ type UserData = {
   name: string | null;
 };
 
+type UpdateUserData = {
+    uid: string;
+    qualification?: string;
+    profession?: string;
+}
+
 export async function createUserInExternalApi(userData: UserData) {
   try {
     const response = await fetch('https://users-164502969077.asia-southeast1.run.app/create', {
@@ -32,6 +38,32 @@ export async function createUserInExternalApi(userData: UserData) {
     return { success: false, error: 'A network error occurred. Please try again.' };
   }
 }
+
+export async function updateUserInExternalApi(userData: UpdateUserData) {
+    try {
+      const response = await fetch('https://users-164502969077.asia-southeast1.run.app/update', {
+        method: 'POST', // or 'PUT' or 'PATCH' depending on your API
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: userData.uid,
+          qualification: userData.qualification,
+          profession: userData.profession
+        }),
+      });
+  
+      if (!response.ok) {
+        const apiError = await response.json();
+        return { success: false, error: apiError.message || 'An error occurred while updating your profile.' };
+      }
+  
+      const data = await response.json();
+      return { success: true, data };
+    } catch (apiError) {
+      return { success: false, error: 'A network error occurred. Please try again.' };
+    }
+  }
 
 export async function getUserFromExternalApi(uid: string) {
   try {
@@ -68,6 +100,4 @@ export async function getSlugDataFromExternalApi(slug: string) {
     }
 }
 
-
-
-
+    

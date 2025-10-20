@@ -3,27 +3,38 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@/firebase";
-import { getUserFromExternalApi } from "@/app/actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { getUserFromExternalApi, updateUserInExternalApi } from "@/app/actions";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, AlertTriangle, LinkIcon } from "lucide-react";
+import { User as UserIcon, Mail, AlertTriangle, LinkIcon, Briefcase, GraduationCap } from "lucide-react";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 type ProfileData = {
     name: string;
     email: string;
     slugURL?: string;
+    qualification?: string;
+    profession?: string;
 };
 
 export function ProfilePage() {
     const { user } = useUser();
+    const { toast } = useToast();
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Local state for form fields
+    const [qualification, setQualification] = useState('');
+    const [profession, setProfession] = useState('');
 
     useEffect(() => {
         if (user?.uid && !profileData && loading) {
@@ -32,6 +43,9 @@ export function ProfilePage() {
                 const result = await getUserFromExternalApi(user.uid);
                 if (result.success) {
                     setProfileData(result.data);
+                    // Initialize form state with fetched data
+                    setQualification(result.data.qualification || '');
+                    setProfession(result.data.profession || '');
                 } else {
                     setError(result.error);
                 }
@@ -40,6 +54,33 @@ export function ProfilePage() {
             fetchProfile();
         }
     }, [user?.uid, profileData, loading]);
+
+    const handleSaveChanges = async () => {
+        if (!user?.uid) return;
+        setIsSaving(true);
+        
+        const result = await updateUserInExternalApi({
+            uid: user.uid,
+            qualification,
+            profession
+        });
+
+        if (result.success) {
+            toast({
+                title: "Profile Updated",
+                description: "Your information has been saved successfully.",
+            });
+            // Optimistically update local state
+            setProfileData(prev => prev ? { ...prev, qualification, profession } : null);
+        } else {
+            toast({
+                title: "Error",
+                description: result.error || "Could not save your changes.",
+                variant: "destructive",
+            });
+        }
+        setIsSaving(false);
+    };
 
     const getInitials = (name: string | undefined | null) => {
         if (!name) return '..';
@@ -68,8 +109,10 @@ export function ProfilePage() {
                                 </div>
                             </div>
                             <div className="space-y-4 pt-4">
-                                <Skeleton className="h-8 w-full" />
-                                <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
                             </div>
                         </div>
                     )}
@@ -90,13 +133,13 @@ export function ProfilePage() {
                                 </Avatar>
                                 <div className="space-y-1">
                                     <h2 className="text-2xl font-bold">
-                                    {profileData.slugURL ? (
-                                        <Link href={`/user/${profileData.slugURL}`} className="hover:underline" target="_blank">
-                                            {profileData.name}
-                                        </Link>
-                                    ) : (
-                                        profileData.name
-                                    )}
+                                        {profileData.slugURL ? (
+                                            <Link href={`/user/${profileData.slugURL}`} className="hover:underline" target="_blank">
+                                                {profileData.name} <LinkIcon className="inline h-4 w-4 text-muted-foreground"/>
+                                            </Link>
+                                        ) : (
+                                            profileData.name
+                                        )}
                                     </h2>
                                     <div className="flex items-center gap-2">
                                         <p className="text-muted-foreground">{profileData.email}</p>
@@ -122,11 +165,40 @@ export function ProfilePage() {
                                     </div>
                                     <span>{profileData.email}</span>
                                 </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="qualification" className="flex items-center gap-2 text-muted-foreground"><GraduationCap className="h-4 w-4" /> Qualification</Label>
+                                    <Input 
+                                        id="qualification" 
+                                        value={qualification}
+                                        onChange={(e) => setQualification(e.target.value)}
+                                        placeholder="e.g., DDS, PhD"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="profession" className="flex items-center gap-2 text-muted-foreground"><Briefcase className="h-4 w-4" /> Profession</Label>
+                                    <Input 
+                                        id="profession" 
+                                        value={profession}
+                                        onChange={(e) => setProfession(e.target.value)}
+                                        placeholder="e.g., Dentist, Researcher"
+                                    />
+                                </div>
                             </div>
                          </>
                     )}
                 </CardContent>
+                {!loading && !error && profileData && (
+                     <CardFooter className="border-t px-6 py-4">
+                        <Button onClick={handleSaveChanges} disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </CardFooter>
+                )}
             </Card>
         </div>
     );
 }
+
+    
