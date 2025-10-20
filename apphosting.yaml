@@ -6,6 +6,9 @@
 location: asia-southeast1
 
 runConfig:
+  # To reduce cost, set this value to 0. This will allow your app to
+  # scale to zero when there is no traffic.
+  minInstances: 0
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
