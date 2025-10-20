@@ -42,7 +42,7 @@ export async function createUserInExternalApi(userData: UserData) {
 export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
       const response = await fetch('https://users-164502969077.asia-southeast1.run.app/update', {
-        method: 'POST', // or 'PUT' or 'PATCH' depending on your API
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
