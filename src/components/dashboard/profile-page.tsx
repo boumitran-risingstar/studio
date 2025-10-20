@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -17,7 +16,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User as UserIcon, Mail, AlertTriangle, Briefcase, GraduationCap, Linkedin, Twitter, Globe, Facebook } from "lucide-react";
@@ -52,7 +50,7 @@ const extractSlug = (url: string | undefined, prefix: string) => {
     const consistentPrefix = prefix.endsWith('/') ? prefix : `${prefix}/`;
     
     // Check for both http and https, and www variants
-    const urlPattern = new RegExp(`^(https?://)?(www\\.)?${consistentPrefix.replace(/^(https?:\/\/)?(www\.)?/, '')}`);
+    const urlPattern = new RegExp(`^(https?://)?(www\\.)?${prefix.replace(/^(https?:\/\/)?(www\\.)?/, '')}`);
     
     if (url.match(urlPattern)) {
         return url.replace(urlPattern, '');
@@ -93,6 +91,7 @@ export function ProfilePage() {
     const [facebookSlug, setFacebookSlug] = useState('');
     const [pinterestSlug, setPinterestSlug] = useState('');
     const [isConfirmed, setIsConfirmed] = useState(false);
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     useEffect(() => {
         if (user?.uid && !hasFetched) {
@@ -145,21 +144,24 @@ export function ProfilePage() {
             return false;
         }
     };
-
-    const handleSaveChanges = async () => {
-        if (!user?.uid || !isConfirmed) return;
-        setIsSaving(true);
-        
+    
+    const handleSaveClick = () => {
         if (!isValidUrl(websiteURL)) {
             toast({
                 title: "Invalid URL",
                 description: "Please enter a valid website URL, including http:// or https://.",
                 variant: "destructive",
             });
-            setIsSaving(false);
             return;
         }
+        setShowConfirmDialog(true);
+    };
 
+
+    const handleSaveChanges = async () => {
+        if (!user?.uid || !isConfirmed) return;
+        setIsSaving(true);
+        
         const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
         const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
@@ -200,6 +202,7 @@ export function ProfilePage() {
         }
         setIsSaving(false);
         setIsConfirmed(false); // Reset confirmation after saving
+        setShowConfirmDialog(false);
     };
 
     const getInitials = (name: string | undefined | null) => {
@@ -363,12 +366,15 @@ export function ProfilePage() {
                         </CardContent>
                     </Card>
                     <div className="flex justify-end">
-                        <AlertDialog onOpenChange={(open) => !open && setIsConfirmed(false)}>
-                            <AlertDialogTrigger asChild>
-                                <Button disabled={isSaving}>
-                                    {isSaving ? 'Saving...' : 'Save All Changes'}
-                                </Button>
-                            </AlertDialogTrigger>
+                        <Button onClick={handleSaveClick} disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save All Changes'}
+                        </Button>
+                        <AlertDialog open={showConfirmDialog} onOpenChange={(open) => {
+                            setShowConfirmDialog(open);
+                            if (!open) {
+                                setIsConfirmed(false);
+                            }
+                        }}>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Confirm Your Changes</AlertDialogTitle>
@@ -399,3 +405,5 @@ export function ProfilePage() {
         </div>
     );
 }
+
+    
