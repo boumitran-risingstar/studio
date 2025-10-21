@@ -54,7 +54,8 @@ export function LoginForm() {
   async function handleSocialLogin() {
     setSocialLoading(true);
     const provider = new GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/business.manage');
+    provider.addScope('profile');
+    provider.addScope('email');
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
@@ -75,9 +76,13 @@ export function LoginForm() {
         
         router.push('/');
     } catch (error: any) {
+        let errorMessage = 'Failed to sign in with social provider. Please try again.';
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMessage = 'An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.';
+        }
         toast({
             title: 'Error signing in',
-            description: 'Failed to sign in with social provider. Please try again.',
+            description: errorMessage,
             variant: 'destructive',
         });
     } finally {
