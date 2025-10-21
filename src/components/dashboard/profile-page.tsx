@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@/firebase";
+import { useUser, getAuthToken } from "@/firebase";
 import { getUserFromExternalApi, updateUserInExternalApi } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -99,7 +99,13 @@ export function ProfilePage() {
             const fetchProfile = async () => {
                 setLoading(true);
                 setError(null);
-                const result = await getUserFromExternalApi(user.uid);
+                const token = await getAuthToken();
+                if (!token) {
+                    setError("Authentication error. Please sign in again.");
+                    setLoading(false);
+                    return;
+                }
+                const result = await getUserFromExternalApi(user.uid, token);
                 if (result.success) {
                     const data = result.data;
                     setProfileData(data);
@@ -159,6 +165,17 @@ export function ProfilePage() {
         if (!user?.uid || !isConfirmed) return;
         setIsSaving(true);
         
+        const token = await getAuthToken();
+        if (!token) {
+            toast({
+                title: "Error",
+                description: "Authentication error. Please sign in again.",
+                variant: "destructive",
+            });
+            setIsSaving(false);
+            return;
+        }
+
         const fullLinkedinURL = linkedinSlug ? `https://linkedin.com/${linkedinSlug}` : '';
         const fullTwitterURL = twitterSlug ? `https://twitter.com/${twitterSlug}` : '';
         const fullFacebookURL = facebookSlug ? `https://facebook.com/${facebookSlug}` : '';
@@ -178,7 +195,7 @@ export function ProfilePage() {
             pinterestURL: fullPinterestURL,
             confirmationText: confirmationText,
             confirmationTimestamp: confirmationTimestamp,
-        });
+        }, token);
 
         if (result.success) {
             toast({

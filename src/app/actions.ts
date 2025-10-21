@@ -22,14 +22,23 @@ type UpdateUserData = {
 
 const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
 
-export async function createUserInExternalApi(userData: UserData) {
+async function getHeaders(token?: string) {
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
+export async function createUserInExternalApi(userData: UserData, token: string) {
   console.log('--- createUserInExternalApi called with: ---', userData);
   try {
+    const headers = await getHeaders(token);
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         uid: userData.uid,
         email: userData.email,
@@ -58,15 +67,13 @@ export async function createUserInExternalApi(userData: UserData) {
   }
 }
 
-export async function updateUserInExternalApi(userData: UpdateUserData) {
+export async function updateUserInExternalApi(userData: UpdateUserData, token: string) {
     try {
       const { uid, ...updateData } = userData;
-
+      const headers = await getHeaders(token);
       const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(updateData),
       });
   
@@ -92,13 +99,12 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
     }
   }
 
-export async function getUserFromExternalApi(uid: string) {
+export async function getUserFromExternalApi(uid: string, token: string) {
   try {
+    const headers = await getHeaders(token);
     const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -124,7 +130,8 @@ export async function getUserFromExternalApi(uid: string) {
 
 export async function getSlugDataFromExternalApi(slug: string) {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`);
+        const headers = await getHeaders();
+        const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`, { headers });
         if (!response.ok) {
             const responseClone = response.clone();
             let errorBody;

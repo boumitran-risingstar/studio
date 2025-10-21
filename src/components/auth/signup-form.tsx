@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth, getAuthToken } from '@/firebase';
 import { SignupSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
@@ -62,11 +62,14 @@ export function SignupForm() {
         const userCredential = await signInWithPopup(auth, provider);
         const { user } = userCredential;
 
+        const token = await getAuthToken();
+        if (!token) throw new Error('Could not get auth token.');
+
         const apiResult = await createUserInExternalApi({
             uid: user.uid,
             email: user.email,
             name: user.displayName,
-        });
+        }, token);
 
         if (!apiResult.success && apiResult.error && !apiResult.error.includes('already exists')) {
             toast({
@@ -102,11 +105,14 @@ export function SignupForm() {
       });
 
       const { user } = userCredential;
+      const token = await getAuthToken();
+      if (!token) throw new Error('Could not get auth token.');
+
       const apiResult = await createUserInExternalApi({
         uid: user.uid,
         email: user.email,
         name: data.name,
-      });
+      }, token);
 
       if (!apiResult.success && apiResult.error) {
         // We still proceed even if API fails, but we show a toast.

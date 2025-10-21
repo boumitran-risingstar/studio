@@ -1,8 +1,9 @@
+
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, getIdToken } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
@@ -38,6 +39,15 @@ export function getSdks(firebaseApp: FirebaseApp) {
     auth: getAuth(firebaseApp),
     firestore: getFirestore(firebaseApp)
   };
+}
+
+export async function getAuthToken(): Promise<string | null> {
+    const auth = getAuth(getApp());
+    const user = auth.currentUser;
+    if (user) {
+        return await getIdToken(user);
+    }
+    return null;
 }
 
 export * from './provider';
