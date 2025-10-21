@@ -55,48 +55,32 @@ export async function createUserInExternalApi(userData: UserData) {
 
 export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
-      const params = new URLSearchParams();
-      params.append('uid', userData.uid);
-      
-      if (userData.qualification) {
-        userData.qualification.forEach(q => params.append('qualification', q));
-      }
-      if (userData.profession) {
-        userData.profession.forEach(p => params.append('profession', p));
-      }
-      if (userData.linkedinURL) params.append('linkedinURL', userData.linkedinURL);
-      if (userData.twitterURL) params.append('twitterURL', userData.twitterURL);
-      if (userData.websiteURL) params.append('websiteURL', userData.websiteURL);
-      if (userData.facebookURL) params.append('facebookURL', userData.facebookURL);
-      if (userData.pinterestURL) params.append('pinterestURL', userData.pinterestURL);
-      if (userData.confirmationText) params.append('confirmationText', userData.confirmationText);
-      if (userData.confirmationTimestamp) params.append('confirmationTimestamp', userData.confirmationTimestamp);
+      const { uid, ...updateData } = userData;
 
-
-      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?${params.toString()}`, {
+      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?uid=${uid}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(updateData),
       });
   
       if (!response.ok) {
-        // The API might return an error with a JSON body
         try {
             const apiError = await response.json();
+            console.error('API Error on update:', apiError);
             return { success: false, error: apiError.message || 'An error occurred while updating your profile.' };
         } catch (e) {
-            // If parsing the error fails, return a generic error
+            console.error('API update response error is not JSON:', response.status, response.statusText);
             return { success: false, error: `An error occurred while updating your profile. Status: ${response.status}` };
         }
       }
   
-      // If the response is OK, we don't expect a body for a PUT request.
-      // Simply return success.
       return { success: true };
 
-    } catch (apiError) {
-      return { success: false, error: 'A network error occurred. Please try again.' };
+    } catch (apiError: any) {
+      console.error('Network or fetch error on update:', apiError);
+      return { success: false, error: apiError.message || 'A network error occurred. Please try again.' };
     }
   }
 
@@ -116,8 +100,9 @@ export async function getUserFromExternalApi(uid: string) {
 
     const userData = await response.json();
     return { success: true, data: userData };
-  } catch (apiError) {
-    return { success: false, error: 'A network error occurred. Please try again.' };
+  } catch (apiError: any) {
+    console.error('Network or fetch error on read:', apiError);
+    return { success: false, error: apiError.message || 'A network error occurred. Please try again.' };
   }
 }
 
@@ -130,7 +115,8 @@ export async function getSlugDataFromExternalApi(slug: string) {
         }
         const slugData = await response.json();
         return { success: true, data: slugData };
-    } catch (error) {
-        return { success: false, error: 'A network error occurred.' };
+    } catch (error: any) {
+        console.error('Network or fetch error on getSlugData:', error);
+        return { success: false, error: error.message || 'A network error occurred.' };
     }
 }
