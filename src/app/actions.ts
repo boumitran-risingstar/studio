@@ -23,6 +23,7 @@ type UpdateUserData = {
 const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
 
 export async function createUserInExternalApi(userData: UserData) {
+  console.log('--- createUserInExternalApi called with: ---', userData);
   try {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'PUT',
@@ -37,14 +38,16 @@ export async function createUserInExternalApi(userData: UserData) {
     });
 
     if (response.status !== 201 && response.status !== 200) {
+        let errorBody;
+        const responseClone = response.clone();
         try {
-            const apiError = await response.json();
-            console.error('API Error on create:', apiError);
-            return { success: false, error: apiError.message || `An error occurred while syncing your account. Status: ${response.status}` };
+            errorBody = await responseClone.json();
         } catch (e) {
-            console.error('API create response error is not JSON:', response.status, response.statusText);
-            return { success: false, error: `An error occurred while syncing your account. Status: ${response.status}` };
+            errorBody = await response.text();
         }
+        console.error('API Error on create:', errorBody);
+        const errorMessage = typeof errorBody === 'object' && errorBody.message ? errorBody.message : `An error occurred while syncing your account. Status: ${response.status}`;
+        return { success: false, error: errorMessage };
     }
 
     const data = await response.json();
@@ -68,20 +71,22 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
       });
   
       if (!response.ok) {
+        let errorBody;
+        const responseClone = response.clone();
         try {
-            const apiError = await response.json();
-            console.error('API Error on update:', apiError);
-            return { success: false, error: apiError.message || 'An error occurred while updating your profile.' };
+            errorBody = await responseClone.json();
         } catch (e) {
-            console.error('API update response error is not JSON:', response.status, response.statusText);
-            return { success: false, error: `An error occurred while updating your profile. Status: ${response.status}` };
+            errorBody = await response.text();
         }
+        console.error('API Error on update:', errorBody);
+        const errorMessage = typeof errorBody === 'object' && errorBody.message ? errorBody.message : 'An error occurred while updating your profile.';
+        return { success: false, error: errorMessage };
       }
       
       const data = await response.json();
       return { success: true, data };
 
-    } catch (apiError: any) {
+    } catch (apiError: any)      {
       console.error('Network or fetch error on update:', apiError);
       return { success: false, error: apiError.message || 'A network error occurred. Please try again.' };
     }
@@ -97,8 +102,16 @@ export async function getUserFromExternalApi(uid: string) {
     });
 
     if (!response.ok) {
-      const apiError = await response.json();
-      return { success: false, error: apiError.message || 'An error occurred while fetching your profile.' };
+        let errorBody;
+        const responseClone = response.clone();
+        try {
+            errorBody = await responseClone.json();
+        } catch (e) {
+            errorBody = await response.text();
+        }
+        console.error('API Error on read:', errorBody);
+        const errorMessage = typeof errorBody === 'object' && errorBody.message ? errorBody.message : 'An error occurred while fetching your profile.';
+        return { success: false, error: errorMessage };
     }
 
     const userData = await response.json();
@@ -113,8 +126,16 @@ export async function getSlugDataFromExternalApi(slug: string) {
     try {
         const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`);
         if (!response.ok) {
-            const apiError = await response.json();
-            return { success: false, error: apiError.message || 'Could not find user.' };
+            let errorBody;
+            const responseClone = response.clone();
+            try {
+                errorBody = await responseClone.json();
+            } catch (e) {
+                errorBody = await response.text();
+            }
+            console.error('API Error on getSlugData:', errorBody);
+            const errorMessage = typeof errorBody === 'object' && errorBody.message ? errorBody.message : 'Could not find user.';
+            return { success: false, error: errorMessage };
         }
         const slugData = await response.json();
         return { success: true, data: slugData };
