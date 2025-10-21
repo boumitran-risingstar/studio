@@ -1,6 +1,8 @@
 
 'use server';
 
+import { GoogleAuth } from 'google-auth-library';
+
 type UserData = {
   uid: string;
   email: string | null;
@@ -21,11 +23,27 @@ type UpdateUserData = {
 }
 
 const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
+let auth: GoogleAuth;
+let client: any;
+
 
 async function getHeaders() {
+    if (!auth) {
+        auth = new GoogleAuth();
+    }
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
     };
+    try {
+        if (!client) {
+            client = await auth.getIdTokenClient(API_BASE_URL);
+        }
+        const clientHeaders = await client.getRequestHeaders();
+        headers['Authorization'] = clientHeaders['Authorization'];
+
+    } catch (e) {
+        console.error("Could not get identity token: ", e);
+    }
     return headers;
 }
 
@@ -64,12 +82,10 @@ export async function createUserInExternalApi(userData: UserData) {
   }
 }
 
-export async function updateUserInExternalApi(userData: UpdateUserData, token: string) {
+export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
       const { uid, ...updateData } = userData;
       const headers = await getHeaders();
-      // We keep the token here because updating a profile should be an explicit user action
-      headers['Authorization'] = `Bearer ${token}`;
 
       const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
         method: 'PATCH',
@@ -99,10 +115,9 @@ export async function updateUserInExternalApi(userData: UpdateUserData, token: s
     }
   }
 
-export async function getUserFromExternalApi(uid: string, token: string) {
+export async function getUserFromExternalApi(uid: string) {
   try {
     const headers = await getHeaders();
-    headers['Authorization'] = `Bearer ${token}`;
     const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
       method: 'GET',
       headers,
@@ -131,7 +146,9 @@ export async function getUserFromExternalApi(uid: string, token: string) {
 
 export async function getSlugDataFromExternalApi(slug: string) {
     try {
-        const headers = await getHeaders();
+        const headers = {
+            'Content-Type': 'application/json',
+        };
         const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`, { headers });
         if (!response.ok) {
             const responseClone = response.clone();
