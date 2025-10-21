@@ -1,9 +1,0 @@
-
-{
-  "auth": {
-    "providers": [
-      "password",
-      "google.com"
-    ]
-  }
-}
