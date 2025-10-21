@@ -22,20 +22,17 @@ type UpdateUserData = {
 
 const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
 
-async function getHeaders(token?: string) {
+async function getHeaders() {
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
     };
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
     return headers;
 }
 
-export async function createUserInExternalApi(userData: UserData, token: string) {
+export async function createUserInExternalApi(userData: UserData) {
   console.log('--- createUserInExternalApi called with: ---', userData);
   try {
-    const headers = await getHeaders(token);
+    const headers = await getHeaders();
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'PUT',
       headers,
@@ -70,7 +67,10 @@ export async function createUserInExternalApi(userData: UserData, token: string)
 export async function updateUserInExternalApi(userData: UpdateUserData, token: string) {
     try {
       const { uid, ...updateData } = userData;
-      const headers = await getHeaders(token);
+      const headers = await getHeaders();
+      // We keep the token here because updating a profile should be an explicit user action
+      headers['Authorization'] = `Bearer ${token}`;
+
       const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
         method: 'PATCH',
         headers,
@@ -101,7 +101,8 @@ export async function updateUserInExternalApi(userData: UpdateUserData, token: s
 
 export async function getUserFromExternalApi(uid: string, token: string) {
   try {
-    const headers = await getHeaders(token);
+    const headers = await getHeaders();
+    headers['Authorization'] = `Bearer ${token}`;
     const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
       method: 'GET',
       headers,

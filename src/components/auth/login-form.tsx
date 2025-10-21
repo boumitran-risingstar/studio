@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
 import { signInWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { useAuth, getAuthToken } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { LoginSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,14 +60,11 @@ export function LoginForm() {
         const userCredential = await signInWithPopup(auth, provider);
         const { user } = userCredential;
 
-        const token = await getAuthToken();
-        if (!token) throw new Error('Could not get auth token.');
-
         const apiResult = await createUserInExternalApi({
             uid: user.uid,
             email: user.email,
             name: user.displayName,
-        }, token);
+        });
 
         if (!apiResult.success && apiResult.error && !apiResult.error.includes('already exists')) {
             toast({
