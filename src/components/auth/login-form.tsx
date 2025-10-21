@@ -21,7 +21,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserInExternalApi } from '@/app/actions';
 
 type LoginFormValues = z.infer<typeof LoginSchema>;
 
@@ -57,23 +56,7 @@ export function LoginForm() {
     provider.addScope('profile');
     provider.addScope('email');
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const { success, error } = await createUserInExternalApi({
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName,
-        });
-
-        if (!success) {
-            toast({
-                title: 'Could not sync account',
-                description: error,
-                variant: 'destructive',
-            });
-        }
-        
+        await signInWithPopup(auth, provider);
         router.push('/');
     } catch (error: any) {
         let errorMessage = 'Failed to sign in with social provider. Please try again.';

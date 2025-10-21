@@ -38,8 +38,8 @@ export async function createUserInExternalApi(userData: UserData) {
     });
 
     if (response.status !== 201 && response.status !== 200) {
-        let errorBody;
         const responseClone = response.clone();
+        let errorBody;
         try {
             errorBody = await responseClone.json();
         } catch (e) {
@@ -71,8 +71,8 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
       });
   
       if (!response.ok) {
-        let errorBody;
         const responseClone = response.clone();
+        let errorBody;
         try {
             errorBody = await responseClone.json();
         } catch (e) {
@@ -102,8 +102,8 @@ export async function getUserFromExternalApi(uid: string) {
     });
 
     if (!response.ok) {
-        let errorBody;
         const responseClone = response.clone();
+        let errorBody;
         try {
             errorBody = await responseClone.json();
         } catch (e) {
@@ -126,8 +126,8 @@ export async function getSlugDataFromExternalApi(slug: string) {
     try {
         const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`);
         if (!response.ok) {
-            let errorBody;
             const responseClone = response.clone();
+            let errorBody;
             try {
                 errorBody = await responseClone.json();
             } catch (e) {

@@ -59,23 +59,7 @@ export function SignupForm() {
     provider.addScope('profile');
     provider.addScope('email');
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const { success, error } = await createUserInExternalApi({
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName,
-        });
-
-        if (!success) {
-            toast({
-                title: 'Could not sync account',
-                description: error,
-                variant: 'destructive',
-            });
-        }
-        
+        await signInWithPopup(auth, provider);
         router.push('/');
     } catch (error: any) {
         let errorMessage = 'Failed to sign in with social provider. Please try again.';
@@ -97,32 +81,21 @@ export function SignupForm() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-            displayName: data.name
-        });
-
-        const { uid, email } = userCredential.user;
-        const result = await createUserInExternalApi({ uid, email, name: data.name });
-        
-        if (!result.success) {
-          // Even if the external API fails, we proceed with Firebase logic but notify the user.
-          toast({
-            title: 'Could not sync account',
-            description: result.error,
-            variant: 'destructive',
-          });
-        }
-      }
-
+      await updateProfile(userCredential.user, {
+          displayName: data.name
+      });
+      
       await sendEmailVerification(userCredential.user, {
         url: `${window.location.origin}/action`
       });
+
       toast({
         title: 'Account created',
         description: "We've sent you an email verification link.",
       });
+
       router.push(`/verify-email?email=${data.email}`);
+
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred.";
       if (error.code === 'auth/email-already-in-use') {
