@@ -23,26 +23,23 @@ type UpdateUserData = {
 }
 
 const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
-let auth: GoogleAuth;
-let client: any;
 
-
+// This function will generate headers with a fresh identity token for each request.
 async function getHeaders() {
-    if (!auth) {
-        auth = new GoogleAuth();
-    }
+    const auth = new GoogleAuth();
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
     };
     try {
-        if (!client) {
-            client = await auth.getIdTokenClient(API_BASE_URL);
-        }
+        const client = await auth.getIdTokenClient(API_BASE_URL);
         const clientHeaders = await client.getRequestHeaders();
-        headers['Authorization'] = clientHeaders['Authorization'];
-
+        if (clientHeaders.Authorization) {
+            headers['Authorization'] = clientHeaders.Authorization;
+        }
     } catch (e) {
         console.error("Could not get identity token: ", e);
+        // We still proceed, but the request will likely fail at the target service.
+        // The logs there will indicate an unauthenticated request.
     }
     return headers;
 }
@@ -146,6 +143,7 @@ export async function getUserFromExternalApi(uid: string) {
 
 export async function getSlugDataFromExternalApi(slug: string) {
     try {
+        // This is a public endpoint, so no Authorization header is needed.
         const headers = {
             'Content-Type': 'application/json',
         };
