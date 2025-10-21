@@ -20,7 +20,7 @@ type UpdateUserData = {
     confirmationTimestamp?: string;
 }
 
-const API_BASE_URL = 'https://studio-164502969077.us-central1.run.app';
+const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
 
 export async function createUserInExternalApi(userData: UserData) {
   console.log('--- createUserInExternalApi called with: ---', userData);
