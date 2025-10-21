@@ -28,7 +28,7 @@ export async function createUserInExternalApi(userData: UserData) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        identifier: userData.uid,
+        uid: userData.uid,
         email: userData.email,
         name: userData.name,
       }),
