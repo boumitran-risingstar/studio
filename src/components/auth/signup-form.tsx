@@ -59,10 +59,26 @@ export function SignupForm() {
     provider.addScope('profile');
     provider.addScope('email');
     try {
-        await signInWithPopup(auth, provider);
+        const userCredential = await signInWithPopup(auth, provider);
+        const { user } = userCredential;
+
+        const apiResult = await createUserInExternalApi({
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName,
+        });
+
+        if (!apiResult.success && apiResult.error && !apiResult.error.includes('already exists')) {
+            toast({
+                title: 'Could not sync account',
+                description: apiResult.error,
+                variant: 'destructive',
+            });
+        }
+        
         router.push('/');
     } catch (error: any) {
-        let errorMessage = 'Failed to sign in with social provider. Please try again.';
+        let errorMessage = 'Failed to sign up with social provider. Please try again.';
         if (error.code === 'auth/account-exists-with-different-credential') {
             errorMessage = 'An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.';
         }
@@ -84,6 +100,22 @@ export function SignupForm() {
       await updateProfile(userCredential.user, {
           displayName: data.name
       });
+
+      const { user } = userCredential;
+      const apiResult = await createUserInExternalApi({
+        uid: user.uid,
+        email: user.email,
+        name: data.name,
+      });
+
+      if (!apiResult.success && apiResult.error) {
+        // We still proceed even if API fails, but we show a toast.
+        toast({
+            title: 'Could not sync account',
+            description: apiResult.error,
+            variant: 'destructive',
+        });
+      }
       
       await sendEmailVerification(userCredential.user, {
         url: `${window.location.origin}/action`
