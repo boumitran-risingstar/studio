@@ -20,10 +20,12 @@ type UpdateUserData = {
     confirmationTimestamp?: string;
 }
 
+const API_BASE_URL = 'https://users-164502969077.asia-southeast1.run.app';
+
 export async function createUserInExternalApi(userData: UserData) {
   try {
-    const response = await fetch('https://users-164502969077.asia-southeast1.run.app/create', {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -34,13 +36,13 @@ export async function createUserInExternalApi(userData: UserData) {
       }),
     });
 
-    if (!response.ok) {
+    if (response.status !== 201 && response.status !== 200) {
         try {
             const apiError = await response.json();
-            console.error('API Error:', apiError);
+            console.error('API Error on create:', apiError);
             return { success: false, error: apiError.message || `An error occurred while syncing your account. Status: ${response.status}` };
         } catch (e) {
-            console.error('API response error is not JSON:', response.status, response.statusText);
+            console.error('API create response error is not JSON:', response.status, response.statusText);
             return { success: false, error: `An error occurred while syncing your account. Status: ${response.status}` };
         }
     }
@@ -48,7 +50,7 @@ export async function createUserInExternalApi(userData: UserData) {
     const data = await response.json();
     return { success: true, data };
   } catch (apiError: any) {
-    console.error('Network or fetch error:', apiError);
+    console.error('Network or fetch error on create:', apiError);
     return { success: false, error: apiError.message || 'A network error occurred. Please try again.' };
   }
 }
@@ -57,8 +59,8 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
     try {
       const { uid, ...updateData } = userData;
 
-      const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/update?uid=${uid}`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -75,8 +77,9 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
             return { success: false, error: `An error occurred while updating your profile. Status: ${response.status}` };
         }
       }
-  
-      return { success: true };
+      
+      const data = await response.json();
+      return { success: true, data };
 
     } catch (apiError: any) {
       console.error('Network or fetch error on update:', apiError);
@@ -86,7 +89,7 @@ export async function updateUserInExternalApi(userData: UpdateUserData) {
 
 export async function getUserFromExternalApi(uid: string) {
   try {
-    const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/read?uid=${uid}`, {
+    const response = await fetch(`${API_BASE_URL}/users/${uid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +111,7 @@ export async function getUserFromExternalApi(uid: string) {
 
 export async function getSlugDataFromExternalApi(slug: string) {
     try {
-        const response = await fetch(`https://users-164502969077.asia-southeast1.run.app/getSlugData?slugURL=${slug}`);
+        const response = await fetch(`${API_BASE_URL}/users/slug/${slug}`);
         if (!response.ok) {
             const apiError = await response.json();
             return { success: false, error: apiError.message || 'Could not find user.' };
